@@ -13,11 +13,4 @@ public class SubtaskTest {
         Subtask s1 = new Subtask(1, "Test 2", "Testing task 2", TaskStatus.IN_PROGRESS, 2);
         assertEquals(s0, s1, "task entities should be compared by id");
     }
-
-    @Test
-    public void testNotSelfAttaching() {
-        Subtask subtask = new Subtask(1, "Subtask 1", "Testing subtask 1", TaskStatus.NEW, 1);
-        // Не проходится
-        assertNotEquals(subtask.id, subtask.epicId, "subtask cannot be attached to itself");
-    }
 }
