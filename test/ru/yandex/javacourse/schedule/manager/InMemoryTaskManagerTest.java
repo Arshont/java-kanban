@@ -20,7 +20,7 @@ public class InMemoryTaskManagerTest {
     TaskManager manager;
 
     @BeforeEach
-    public void initManager(){
+    public void initManager() {
         manager = Managers.getDefault();
     }
 
@@ -36,7 +36,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testAddTaskWithId(){
+    public void testAddTaskWithId() {
         Task task = new Task(42, "Test 1", "Testing task 1", TaskStatus.NEW);
         manager.addNewTask(task);
         assertEquals(1, manager.getTasks().size(), "task should be added");
@@ -46,7 +46,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void testAddTaskWithAndWithoutId(){
+    public void testAddTaskWithAndWithoutId() {
         Task task0 = new Task("Test 1", "Testing task 1", TaskStatus.NEW);
         Task task1 = new Task(1, "Test 2", "Testing task 2", TaskStatus.NEW);
         manager.addNewTask(task0);
@@ -148,7 +148,7 @@ public class InMemoryTaskManagerTest {
         manager.deleteEpic(epic.getId());
         assertEquals(0, manager.getEpics().size(), "All epics should be deleted");
         assertEquals(0, manager.getSubtasks().size(), "All subtasks should be deleted");
-        for (int i = 1; i <= 3 ; i++) {
+        for (int i = 1; i <= 3; i++) {
             Epic epic1 = new Epic("Epic " + i, "Testing epic " + i);
             manager.addNewEpic(epic1);
             for (int j = 1; j <= 3; j++) {
