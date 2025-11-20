@@ -13,7 +13,7 @@ public class InFileTaskManager extends InMemoryTaskManager {
     Path file;
 
     public InFileTaskManager(String filename) {
-//        file = Paths.get(filename);
+        file = Paths.get(filename);
     }
 
     public InFileTaskManager(String filename, String restoreFilename) {
@@ -67,7 +67,7 @@ public class InFileTaskManager extends InMemoryTaskManager {
 //
 //    }
 
-    private void restoreTaskFromString(String taskString) {
+    private Task restoreTaskFromString(String taskString) {
         StringTokenizer tokenizer = new StringTokenizer(taskString, ",");
         int id = Integer.parseInt(tokenizer.nextToken());
         String type = tokenizer.nextToken();
@@ -75,19 +75,18 @@ public class InFileTaskManager extends InMemoryTaskManager {
         TaskStatus status = TaskStatus.valueOf(tokenizer.nextToken());
         String description = tokenizer.nextToken();
         int epicId = tokenizer.hasMoreTokens() ? Integer.parseInt(tokenizer.nextToken()) : 0;
+        Task task = null;
         switch (type) {
             case "TASK":
-                Task task = new Task(id, name, description, status);
-                addNewTask(task);
+                task = new Task(id, name, description, status);
                 break;
             case "EPIC":
-                Epic epic = new Epic(id, name, description);
-                addNewEpic(epic);
+                task = new Epic(id, name, description);
                 break;
             case "SUBTASK":
-                Subtask subtask = new Subtask(id, name, description, status, epicId);
-                addNewSubtask(subtask);
+                task = new Subtask(id, name, description, status, epicId);
                 break;
         }
+        return task;
     }
 }
