@@ -9,7 +9,8 @@ public class Managers {
     public static TaskManager getDefault() {
         return new InMemoryTaskManager();
     }
-
+    public static TaskManager getFileManager(String filename) { return new InFileTaskManager(filename);}
+    public static TaskManager getAndRestoreFileManager(String filename, String filenameForRestore) { return new InFileTaskManager(filename, filenameForRestore);}
     public static HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager();
     }
