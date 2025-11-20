@@ -21,6 +21,42 @@ public class InFileTaskManager extends InMemoryTaskManager {
 //        restoreTasksFromFile(restoreFilename);
     }
 
+    @Override
+    public int addNewTask(Task task) {
+        generatorId++;
+        final int id = task.getId() == 0 ? generatorId : task.getId();
+        task.setId(id);
+        tasks.put(id, task);
+        return id;
+    }
+
+    @Override
+    public int addNewEpic(Epic epic) {
+        generatorId++;
+        final int id = epic.getId() == 0 ? generatorId : epic.getId();
+        epic.setId(id);
+        epics.put(id, epic);
+        updateEpicStatus(id);
+        return id;
+
+    }
+
+    @Override
+    public Integer addNewSubtask(Subtask subtask) {
+        final int epicId = subtask.getEpicId();
+        Epic epic = epics.get(epicId);
+        if (epic == null) {
+            return null;
+        }
+        generatorId++;
+        final int id = subtask.getId() == 0 ? generatorId : subtask.getId();
+        subtask.setId(id);
+        subtasks.put(id, subtask);
+        epic.addSubtaskId(subtask.getId());
+        updateEpicStatus(epicId);
+        return id;
+    }
+
 //    public void restoreTasksFromFile(String filename) {
 //        Path restorationFile = Paths.get(filename);
 //
