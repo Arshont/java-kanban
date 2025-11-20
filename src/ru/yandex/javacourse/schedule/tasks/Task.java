@@ -75,4 +75,7 @@ public class Task {
                 ", description='" + description + '\'' +
                 '}';
     }
+    public String toStringForCSV() {
+        return String.join(",", String.valueOf(id), "TASK", name, status.toString(), description) + ",";
+    }
 }

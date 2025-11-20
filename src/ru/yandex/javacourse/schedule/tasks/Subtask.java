@@ -27,4 +27,9 @@ public class Subtask extends Task {
                 ", description='" + description + '\'' +
                 '}';
     }
+
+    @Override
+    public String toStringForCSV() {
+        return String.join(",", String.valueOf(id), "SUBTASK", name, status.toString(), description, String.valueOf(epicId));
+    }
 }
