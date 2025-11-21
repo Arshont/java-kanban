@@ -10,6 +10,8 @@ public class ManagersTest {
     public void testDefaultManagersNotNull() {
         assertNotNull(Managers.getDefault(), "default manager should not be null");
         assertNotNull(Managers.getDefaultHistory(), "default history managers should not be null");
+        assertNotNull(Managers.getDefault(), "default manager should not be null");
+        assertNotNull(Managers.getDefaultHistory(), "default history managers should not be null");
     }
 
 }
