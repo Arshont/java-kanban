@@ -63,7 +63,6 @@ public class FileBackedTaskManagerTest {
 
         TaskManager manager1 = Managers.getFileManager(file1.toString());
 
-
         Task task1 = new Task("Task #1", "Task1 description", NEW);
         Task task2 = new Task("Task #2", "Task2 description", NEW);
         manager1.addNewTask(task1);
