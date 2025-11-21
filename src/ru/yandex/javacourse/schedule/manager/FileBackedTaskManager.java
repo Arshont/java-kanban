@@ -177,7 +177,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         System.out.println("\nМенеджер 1:\n" + getAllTasksInString(manager1));
         System.out.println("Менеджер 2:\n" + getAllTasksInString(manager2));
-        if (getAllTasksInString(manager1).equals(getAllTasksInString(manager2))){
+        if (getAllTasksInString(manager1).equals(getAllTasksInString(manager2))) {
             System.out.println("Задачи в менеджерах идентичны");
         } else {
             System.out.println("Задачи в менеджерах отличаются");
