@@ -71,6 +71,18 @@ public class Task {
         return name;
     }
 
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -81,6 +93,14 @@ public class Task {
 
     public void setStatus(TaskStatus status) {
         this.status = status;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
     public String getDescription() {
@@ -115,6 +135,6 @@ public class Task {
     }
 
     public String toStringForCSV() {
-        return String.join(",", String.valueOf(id), "TASK", name, status.toString(), description) + ",";
+        return String.join(",", String.valueOf(id), "TASK", name, status.toString(), description, String.valueOf(duration.toMinutes()), startTime.toString()) + ",";
     }
 }
