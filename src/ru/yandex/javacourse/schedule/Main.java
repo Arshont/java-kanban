@@ -35,6 +35,7 @@ public class Main {
         manager.addNewSubtask(subtask3);
 
         printAllTasks(manager);
+        printHistory(manager);
 
         TaskManager manager1 = Managers.getAndRestoreFileManager("Test2.txt", "Test.txt");
 

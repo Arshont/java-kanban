@@ -56,7 +56,7 @@ public class Epic extends Task {
                 ", description='" + description + '\'' +
                 ", subtaskIds=" + subtaskIds +
                 ", startTime='" + startTime +'\'' +
-                ", duration=" + duration.toMinutes() +
+                ", duration=" + duration +
                 ", endTime=" + endTime + '\'' +
                 '}';
     }

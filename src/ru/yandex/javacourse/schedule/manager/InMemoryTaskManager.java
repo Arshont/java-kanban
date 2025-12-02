@@ -5,21 +5,16 @@ import static ru.yandex.javacourse.schedule.tasks.TaskStatus.NEW;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import ru.yandex.javacourse.schedule.tasks.Epic;
-import ru.yandex.javacourse.schedule.tasks.Subtask;
-import ru.yandex.javacourse.schedule.tasks.Task;
-import ru.yandex.javacourse.schedule.tasks.TaskStatus;
+import ru.yandex.javacourse.schedule.tasks.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
     protected final Map<Integer, Task> tasks = new HashMap<>();
     protected final Map<Integer, Epic> epics = new HashMap<>();
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
+    protected final Set<Task> prioretizedTasks = new TreeSet<>(new TaskTimeComparator());
     protected int generatorId = 0;
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
@@ -253,5 +248,24 @@ public class InMemoryTaskManager implements TaskManager {
             }
             epic.setDuration(totalDuration);
         }
+    }
+
+    protected boolean hasTasksCrossings() {
+        if (!prioretizedTasks.isEmpty()) {
+            Iterator<Task> iterator = prioretizedTasks.iterator();
+            Task task = iterator.next();
+            while (iterator.hasNext()){
+                Task task1 = iterator.next();
+                if (task1.isCrossedWith(task)) {
+                    return true;
+                }
+                task = task1;
+            }
+        }
+        return false;
+    }
+
+    protected List<Task> getPriretizedTasks() {
+        return new ArrayList<>(prioretizedTasks);
     }
 }

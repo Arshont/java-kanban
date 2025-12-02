@@ -132,7 +132,7 @@ public class Task {
                 ", status='" + status + '\'' +
                 ", description='" + description + '\'' +
                 ", startTime='" + startTime +'\'' +
-                ", duration=" + duration.toMinutes() +
+                ", duration=" + duration +
                 '}';
     }
 
@@ -145,5 +145,9 @@ public class Task {
                 description,
                 startTime != null ? startTime.toString() : " ",
                 String.valueOf(duration.toMinutes()));
+    }
+
+    public boolean isCrossedWith(Task task) {
+        return startTime.isAfter(task.getEndTime()) || getEndTime().isAfter(task.getStartTime());
     }
 }
