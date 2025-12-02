@@ -32,38 +32,33 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public int addNewTask(Task task) {
-        final int id = task.getId() == 0 ? ++generatorId : task.getId();
-        generatorId = Math.max(generatorId, task.getId());
-        task.setId(id);
-        tasks.put(id, task);
+        if (task.getId() != 0) {
+            // Необходимо, чтобы при добавлении задачи из файла не возникало коллизии id в дальнейшем
+            generatorId = task.getId() - 1;
+        }
+        final int id = super.addNewTask(task);
         save();
         return id;
     }
 
     @Override
     public int addNewEpic(Epic epic) {
-        final int id = epic.getId() == 0 ? ++generatorId : epic.getId();
-        generatorId = Math.max(generatorId, epic.getId());
-        epic.setId(id);
-        epics.put(id, epic);
-        updateEpicAttributes(id);
+        if (epic.getId() != 0) {
+            // Необходимо, чтобы при добавлении задачи из файла не возникало коллизии id в дальнейшем
+            generatorId = epic.getId() - 1;
+        }
+        final int id = super.addNewEpic(epic);
         save();
         return id;
     }
 
     @Override
     public Integer addNewSubtask(Subtask subtask) {
-        final int epicId = subtask.getEpicId();
-        Epic epic = epics.get(epicId);
-        if (epic == null) {
-            return null;
+        if (subtask.getId() != 0) {
+            // Необходимо, чтобы при добавлении задачи из файла не возникало коллизии id в дальнейшем
+            generatorId = subtask.getId() - 1;
         }
-        final int id = subtask.getId() == 0 ? ++generatorId: subtask.getId();
-        generatorId = Math.max(generatorId, subtask.getId());
-        subtask.setId(id);
-        subtasks.put(id, subtask);
-        epic.addSubtaskId(subtask.getId());
-        updateEpicAttributes(epicId);
+        final int id = super.addNewSubtask(subtask);
         save();
         return id;
     }
