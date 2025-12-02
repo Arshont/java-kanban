@@ -39,6 +39,8 @@ public class Subtask extends Task {
                 ", name='" + name + '\'' +
                 ", status=" + status +
                 ", description='" + description + '\'' +
+                ", startTime='" + startTime +'\'' +
+                ", duration=" + duration.toMinutes() +
                 '}';
     }
 
