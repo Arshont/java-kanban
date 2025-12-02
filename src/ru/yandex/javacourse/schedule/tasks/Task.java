@@ -135,6 +135,13 @@ public class Task {
     }
 
     public String toStringForCSV() {
-        return String.join(",", String.valueOf(id), "TASK", name, status.toString(), description, String.valueOf(duration.toMinutes()), startTime.toString()) + ",";
+        return String.join(",",
+                String.valueOf(id),
+                "TASK",
+                name,
+                status.toString(),
+                description,
+                startTime != null ? startTime.toString() : " ",
+                String.valueOf(duration.toMinutes()));
     }
 }

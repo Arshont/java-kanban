@@ -241,13 +241,17 @@ public class InMemoryTaskManager implements TaskManager {
         Duration totalDuration = Duration.ZERO;
         if (!epic.getSubtaskIds().isEmpty()) {
             for (int id : epic.getSubtaskIds()) {
-                startTime = startTime.isAfter(subtasks.get(id).getStartTime()) ? subtasks.get(id).getStartTime() : startTime;
-                endTime = endTime.isBefore(subtasks.get(id).getEndTime()) ? subtasks.get(id).getEndTime() : endTime;
+                if (subtasks.get(id).getStartTime() != null) {
+                    startTime = startTime.isAfter(subtasks.get(id).getStartTime()) ? subtasks.get(id).getStartTime() : startTime;
+                    endTime = endTime.isBefore(subtasks.get(id).getEndTime()) ? subtasks.get(id).getEndTime() : endTime;
+                }
                 totalDuration = totalDuration.plus(subtasks.get(id).getDuration());
             }
+            if (startTime != LocalDateTime.MAX) {
+                epic.setStartTime(startTime);
+                epic.setEndTime(endTime);
+            }
+            epic.setDuration(totalDuration);
         }
-        epic.setStartTime(startTime);
-        epic.setEndTime(endTime);
-        epic.setDuration(totalDuration);
     }
 }

@@ -60,6 +60,11 @@ public class Epic extends Task {
 
     @Override
     public String toStringForCSV() {
-        return String.join(",", String.valueOf(id), "EPIC", name, status.toString(), description) + ",";
+        return String.join(",",
+                String.valueOf(id),
+                "EPIC",
+                name,
+                status.toString(),
+                description);
     }
 }

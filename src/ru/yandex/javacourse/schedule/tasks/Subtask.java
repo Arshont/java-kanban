@@ -44,6 +44,14 @@ public class Subtask extends Task {
 
     @Override
     public String toStringForCSV() {
-        return String.join(",", String.valueOf(id), "SUBTASK", name, status.toString(), description, String.valueOf(epicId), String.valueOf(duration.toMinutes()), startTime.toString());
+        return String.join(",",
+                String.valueOf(id),
+                "SUBTASK",
+                name,
+                status.toString(),
+                description,
+                startTime != null ? startTime.toString() : " ",
+                String.valueOf(duration.toMinutes()),
+                String.valueOf(epicId));
     }
 }

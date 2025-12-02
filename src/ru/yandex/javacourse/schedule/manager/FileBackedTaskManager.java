@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 import static ru.yandex.javacourse.schedule.tasks.TaskStatus.NEW;
@@ -57,7 +58,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         if (epic == null) {
             return null;
         }
-        final int id = subtask.getId() == 0 ? ++generatorId++ : subtask.getId();
+        final int id = subtask.getId() == 0 ? ++generatorId: subtask.getId();
         generatorId = Math.max(generatorId, subtask.getId());
         subtask.setId(id);
         subtasks.put(id, subtask);
@@ -117,7 +118,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-            writer.write("id,type,name,status,description,epic,startTime,duration\n");
+            writer.write("id,type,name,status,description,startTime,duration,epic\n");
             for (Task task : getTasks()) {
                 writer.write(task.toStringForCSV() + "\n");
             }
@@ -139,14 +140,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = tokenizer.nextToken();
         TaskStatus status = TaskStatus.valueOf(tokenizer.nextToken());
         String description = tokenizer.nextToken();
-        int epicId = tokenizer.hasMoreTokens() ? Integer.parseInt(tokenizer.nextToken()) : 0;
-        LocalDateTime startTime = LocalDateTime.parse(tokenizer.nextToken());
-        Duration duration = Duration.ofMinutes(Integer.parseInt(tokenizer.nextToken()));
-        switch (type) {
-            case "TASK" -> addNewTask(new Task(id, name, description, status, duration, startTime));
-            case "EPIC" -> addNewEpic(new Epic(id, name, description));
-            case "SUBTASK" -> addNewSubtask(new Subtask(id, name, description, status, epicId, duration));
+        if (tokenizer.hasMoreTokens()) {
+            String startTimeToken = tokenizer.nextToken();
+            LocalDateTime startTime = !startTimeToken.equals(" ") ? LocalDateTime.parse(startTimeToken) : null;
+            Duration duration = Duration.ofMinutes(Integer.parseInt(tokenizer.nextToken()));
+            int epicId = tokenizer.hasMoreTokens() ? Integer.parseInt(tokenizer.nextToken()) : 0;
+            switch (type) {
+                case "TASK" -> addNewTask(new Task(id, name, description, status, duration, startTime));
+                case "SUBTASK" -> addNewSubtask(new Subtask(id, name, description, status, epicId, duration, startTime));
+            }
+        } else {
+            addNewEpic(new Epic(id, name, description));
         }
+
     }
 
 //    public static void main(String[] args) throws IOException {
