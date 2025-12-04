@@ -3,6 +3,7 @@ package ru.yandex.javacourse.schedule.tasks;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Task {
     protected int id;
@@ -34,7 +35,6 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = status;
-        this.duration = duration;
     }
 
     public Task(String name, String description, TaskStatus status, Duration duration, LocalDateTime startTime) {
@@ -56,7 +56,6 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = status;
-        this.duration = duration;
     }
 
     public int getId() {
@@ -75,12 +74,16 @@ public class Task {
         return duration;
     }
 
-    public LocalDateTime getStartTime() {
-        return startTime;
+    public Optional<LocalDateTime> getStartTime() {
+        return Optional.ofNullable(startTime);
     }
 
-    public LocalDateTime getEndTime() {
-        return startTime.plus(duration);
+    public Optional<LocalDateTime> getEndTime() {
+        if (startTime != null) {
+            return Optional.of(startTime.plus(duration));
+        } else {
+            return Optional.empty();
+        }
     }
 
     public void setName(String name) {
@@ -148,6 +151,10 @@ public class Task {
     }
 
     public boolean isCrossedWith(Task task) {
-        return startTime.isAfter(task.getEndTime()) || getEndTime().isAfter(task.getStartTime());
+        if (task.getEndTime().isPresent() && getEndTime().isPresent()) {
+            return startTime.isAfter(task.getEndTime().get()) || getEndTime().get().isAfter(task.getStartTime().get());
+        } else {
+            return false;
+        }
     }
 }

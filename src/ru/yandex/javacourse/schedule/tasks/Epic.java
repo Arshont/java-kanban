@@ -5,6 +5,7 @@ import static ru.yandex.javacourse.schedule.tasks.TaskStatus.NEW;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Epic extends Task {
 
@@ -31,8 +32,8 @@ public class Epic extends Task {
     }
 
     @Override
-    public LocalDateTime getEndTime() {
-        return endTime;
+    public Optional<LocalDateTime> getEndTime() {
+        return Optional.ofNullable(endTime);
     }
 
     public void cleanSubtaskIds() {
