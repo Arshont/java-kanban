@@ -42,9 +42,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic == null) {
             return null;
         }
-        for (int id : epic.getSubtaskIds()) {
-            tasks.add(subtasks.get(id));
-        }
+        epic.getSubtaskIds().stream().map(subtasks::get).peek(tasks::add);
         return tasks;
     }
 
@@ -157,11 +155,11 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpic(int id) {
         final Epic epic = epics.remove(id);
         historyManager.remove(id);
-        for (Integer subtaskId : epic.getSubtaskIds()) {
+        epic.getSubtaskIds().forEach(subtaskId -> {
             prioritizedTasks.remove(getSubtasks().get(id));
             subtasks.remove(subtaskId);
             historyManager.remove(subtaskId);
-        }
+        });
     }
 
     @Override
@@ -179,35 +177,33 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
-        for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
+        tasks.entrySet().forEach(entry -> {
             historyManager.remove(entry.getValue().getId());
             prioritizedTasks.remove(entry.getValue());
-        }
+        });
         tasks.clear();
     }
 
     @Override
     public void deleteSubtasks() {
-        for (Epic epic : epics.values()) {
+        epics.values().forEach(epic -> {
             epic.cleanSubtaskIds();
             updateEpicAttributes(epic.getId());
-        }
-        for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
+        });
+        subtasks.entrySet().forEach(entry -> {
             historyManager.remove(entry.getValue().getId());
             prioritizedTasks.remove(entry.getValue());
-        }
+        });
         subtasks.clear();
     }
 
     @Override
     public void deleteEpics() {
-        for (Map.Entry<Integer, Epic> entry : epics.entrySet()) {
-            historyManager.remove(entry.getValue().getId());
-        }
-        for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
+        epics.values().stream().mapToInt(Task::getId).forEach(historyManager::remove);
+        subtasks.entrySet().forEach(entry -> {
             historyManager.remove(entry.getValue().getId());
             prioritizedTasks.remove(entry.getValue());
-        }
+        });
         epics.clear();
         subtasks.clear();
     }
@@ -272,14 +268,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected boolean hasNewTaskTimeCrossings(Task task) {
         if (!prioritizedTasks.isEmpty()) {
-//            Iterator<Task> iterator = prioritizedTasks.iterator();
-//            while (iterator.hasNext()){
-//                Task task1 = iterator.next();
-//                if (task1.isCrossedWith(task)) {
-//                    return true;
-//                }
-//                task = task1;
-//            }
             return prioritizedTasks.stream()
                     .anyMatch(pTask -> pTask.isCrossedWith(task));
         }
