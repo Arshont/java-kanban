@@ -272,14 +272,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected boolean hasNewTaskTimeCrossings(Task task) {
         if (!prioritizedTasks.isEmpty()) {
-            Iterator<Task> iterator = prioritizedTasks.iterator();
-            while (iterator.hasNext()){
-                Task task1 = iterator.next();
-                if (task1.isCrossedWith(task)) {
-                    return true;
-                }
-                task = task1;
-            }
+//            Iterator<Task> iterator = prioritizedTasks.iterator();
+//            while (iterator.hasNext()){
+//                Task task1 = iterator.next();
+//                if (task1.isCrossedWith(task)) {
+//                    return true;
+//                }
+//                task = task1;
+//            }
+            return prioritizedTasks.stream()
+                    .anyMatch(pTask -> pTask.isCrossedWith(task));
         }
         return false;
     }
