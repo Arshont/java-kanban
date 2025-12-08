@@ -152,7 +152,17 @@ public class Task {
 
     public boolean isCrossedWith(Task task) {
         if (task.getEndTime().isPresent() && getEndTime().isPresent()) {
-            return startTime.isAfter(task.getEndTime().get()) || getEndTime().get().isAfter(task.getStartTime().get());
+//            return startTime.isAfter(task.getEndTime().get()) || getEndTime().get().isBefore(task.getStartTime().get());
+            if (getStartTime().get().isBefore(task.getStartTime().get())) {
+                // Если первая (объект, вызывающий метод) задача началась раньше
+                return !getEndTime().get().isBefore(task.getStartTime().get());
+            } else if (getStartTime().get().isAfter(task.getStartTime().get())) {
+                // Если вторая (аргумент) задача началась раньше
+                return !task.getEndTime().get().isBefore(getStartTime().get());
+            } else {
+                // Если задачи начинаются одновременно
+                return true;
+            }
         } else {
             return false;
         }
