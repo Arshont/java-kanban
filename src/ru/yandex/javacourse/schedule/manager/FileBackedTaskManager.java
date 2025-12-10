@@ -32,34 +32,34 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public int addNewTask(Task task) {
-        if (task.getId() != 0) {
+        final int id = super.addNewTask(task);
+        if (task.getId() != 0 && id != 0) {
             // Необходимо, чтобы при добавлении задачи из файла не возникало коллизии id в дальнейшем
             generatorId = task.getId() - 1;
+            save();
         }
-        final int id = super.addNewTask(task);
-        save();
         return id;
     }
 
     @Override
     public int addNewEpic(Epic epic) {
-        if (epic.getId() != 0) {
+        final int id = super.addNewEpic(epic);
+        if (epic.getId() != 0 && id != 0) {
             // Необходимо, чтобы при добавлении задачи из файла не возникало коллизии id в дальнейшем
             generatorId = epic.getId() - 1;
+            save();
         }
-        final int id = super.addNewEpic(epic);
-        save();
         return id;
     }
 
     @Override
     public Integer addNewSubtask(Subtask subtask) {
-        if (subtask.getId() != 0) {
+        final int id = super.addNewSubtask(subtask);
+        if (subtask.getId() != 0 && id != 0) {
             // Необходимо, чтобы при добавлении задачи из файла не возникало коллизии id в дальнейшем
             generatorId = subtask.getId() - 1;
+            save();
         }
-        final int id = super.addNewSubtask(subtask);
-        save();
         return id;
     }
 
@@ -142,7 +142,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             int epicId = tokenizer.hasMoreTokens() ? Integer.parseInt(tokenizer.nextToken()) : 0;
             switch (type) {
                 case "TASK" -> addNewTask(new Task(id, name, description, status, duration, startTime));
-                case "SUBTASK" -> addNewSubtask(new Subtask(id, name, description, status, epicId, duration, startTime));
+                case "SUBTASK" ->
+                        addNewSubtask(new Subtask(id, name, description, status, duration, startTime, epicId));
             }
         } else {
             addNewEpic(new Epic(id, name, description));

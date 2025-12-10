@@ -19,10 +19,13 @@ public class InMemoryTaskManager implements TaskManager {
     protected int generatorId = 0;
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
-
     @Override
     public ArrayList<Task> getTasks() {
         return new ArrayList<>(this.tasks.values());
+    }
+
+    public ArrayList<Map.Entry<Integer, Task>> getMap() {
+        return new ArrayList<>(tasks.entrySet());
     }
 
     @Override
@@ -69,28 +72,32 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int addNewTask(Task task) {
-        if (!hasNewTaskTimeCrossings(task)) {
-            final int id = ++generatorId;
-            task.setId(id);
-            tasks.put(id, task);
-            addTaskWithPriority(task);
-            return id;
+        if (!hasNewTaskTimeCrossings(task) && !tasks.containsValue(task)) {
+                final int id = ++generatorId;
+                task.setId(id);
+                tasks.put(id, task);
+                addTaskWithPriority(task);
+                return id;
+
         }
         return 0;
     }
 
     @Override
     public int addNewEpic(Epic epic) {
-        final int id = ++generatorId;
-        epic.setId(id);
-        epics.put(id, epic);
-        updateEpicAttributes(id);
-        return id;
+        if (!epics.containsValue(epic)) {
+            final int id = ++generatorId;
+            epic.setId(id);
+            epics.put(id, epic);
+            updateEpicAttributes(id);
+            return id;
+        }
+        return 0;
     }
 
     @Override
     public Integer addNewSubtask(Subtask subtask) {
-        if (hasNewTaskTimeCrossings(subtask)) {
+        if (hasNewTaskTimeCrossings(subtask) && !subtasks.containsValue(subtask)) {
             final int epicId = subtask.getEpicId();
             Epic epic = epics.get(epicId);
             if (epic == null) {
@@ -104,7 +111,7 @@ public class InMemoryTaskManager implements TaskManager {
             updateEpicAttributes(epicId);
             return id;
         }
-        return  0;
+        return 0;
     }
 
     @Override
