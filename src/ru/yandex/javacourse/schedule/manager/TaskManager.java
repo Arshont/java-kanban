@@ -52,5 +52,11 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
-    public List<Task> getPrioritizedTasks();
+    List<Task> getPrioritizedTasks();
+
+//    boolean isTaskAlreadyExists(Task task);
+//
+//    boolean isTaskAlreadyExists(Task task);
+//
+//    boolean isTaskAlreadyExists(Task task);
 }

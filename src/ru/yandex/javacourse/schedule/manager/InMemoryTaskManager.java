@@ -45,7 +45,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic == null) {
             return null;
         }
-        epic.getSubtaskIds().stream().map(subtasks::get).peek(tasks::add);
+        epic.getSubtaskIds().stream().map(subtasks::get).forEach(tasks::add);
         return tasks;
     }
 
@@ -73,12 +73,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int addNewTask(Task task) {
         if (!hasNewTaskTimeCrossings(task) && !tasks.containsValue(task)) {
-                final int id = ++generatorId;
-                task.setId(id);
-                tasks.put(id, task);
-                addTaskWithPriority(task);
-                return id;
-
+            final int id = ++generatorId;
+            task.setId(id);
+            tasks.put(id, task);
+            addTaskWithPriority(task);
+            return id;
         }
         return 0;
     }
@@ -97,7 +96,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Integer addNewSubtask(Subtask subtask) {
-        if (hasNewTaskTimeCrossings(subtask) && !subtasks.containsValue(subtask)) {
+        if (!hasNewTaskTimeCrossings(subtask) && !subtasks.containsValue(subtask)) {
             final int epicId = subtask.getEpicId();
             Epic epic = epics.get(epicId);
             if (epic == null) {
@@ -128,9 +127,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateEpic(Epic epic) {
-        final Epic savedEpic = epics.get(epic.getId());
-        savedEpic.setName(epic.getName());
-        savedEpic.setDescription(epic.getDescription());
+        final int id = epic.getId();
+        final Epic savedEpic = epics.get(id);
+        if (savedEpic == null) {
+            return;
+        }
+        epics.put(id, epic);
     }
 
     @Override
@@ -240,8 +242,7 @@ public class InMemoryTaskManager implements TaskManager {
                 continue;
             }
 
-            if (status == subtask.getStatus()
-                    && status != IN_PROGRESS) {
+            if (status == subtask.getStatus() && status != IN_PROGRESS) {
                 continue;
             }
             epic.setStatus(IN_PROGRESS);
@@ -259,8 +260,10 @@ public class InMemoryTaskManager implements TaskManager {
         if (!epic.getSubtaskIds().isEmpty()) {
             for (int id : epic.getSubtaskIds()) {
                 if (subtasks.get(id).getStartTime().isPresent()) {
-                    startTime = startTime.isAfter(subtasks.get(id).getStartTime().get()) ? subtasks.get(id).getStartTime().get() : startTime;
-                    endTime = endTime.isBefore(subtasks.get(id).getEndTime().get()) ? subtasks.get(id).getEndTime().get() : endTime;
+                    startTime = startTime.isAfter(subtasks.get(id).getStartTime().get()) ?
+                            subtasks.get(id).getStartTime().get() : startTime;
+                    endTime = endTime.isBefore(subtasks.get(id).getEndTime().get()) ?
+                            subtasks.get(id).getEndTime().get() : endTime;
                     totalDurationWithStartTime = totalDurationWithStartTime.plus(subtasks.get(id).getDuration());
                 }
                 totalDuration = totalDuration.plus(subtasks.get(id).getDuration());
@@ -275,8 +278,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected boolean hasNewTaskTimeCrossings(Task task) {
         if (!prioritizedTasks.isEmpty()) {
-            return prioritizedTasks.stream()
-                    .anyMatch(pTask -> pTask.isCrossedWith(task));
+            return prioritizedTasks.stream().anyMatch(pTask -> pTask.isCrossedWith(task));
         }
         return false;
     }

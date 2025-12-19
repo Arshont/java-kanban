@@ -30,7 +30,7 @@ public class Task {
         this.duration = duration;
     }
 
-    public Task(int id, String name, String description, TaskStatus status) {
+    protected Task(int id, String name, String description, TaskStatus status) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -52,7 +52,7 @@ public class Task {
         this.duration = duration;
     }
 
-    public Task(String name, String description, TaskStatus status) {
+    protected Task(String name, String description, TaskStatus status) {
         this.name = name;
         this.description = description;
         this.status = status;
@@ -134,7 +134,7 @@ public class Task {
                 ", name='" + name + '\'' +
                 ", status='" + status + '\'' +
                 ", description='" + description + '\'' +
-                ", startTime='" + startTime +'\'' +
+                ", startTime='" + startTime + '\'' +
                 ", duration=" + duration +
                 '}';
     }
@@ -152,7 +152,6 @@ public class Task {
 
     public boolean isCrossedWith(Task task) {
         if (task.getEndTime().isPresent() && getEndTime().isPresent()) {
-//            return startTime.isAfter(task.getEndTime().get()) || getEndTime().get().isBefore(task.getStartTime().get());
             if (getStartTime().get().isBefore(task.getStartTime().get())) {
                 // Если первая (объект, вызывающий метод) задача началась раньше
                 return !getEndTime().get().isBefore(task.getStartTime().get());
