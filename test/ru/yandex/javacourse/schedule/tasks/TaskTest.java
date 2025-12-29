@@ -46,7 +46,8 @@ public class TaskTest {
         Task t4 = new Task(5, "Test 5", "Testing task 5", TaskStatus.NEW, Duration.ofMinutes(15));
         assertTrue(t0.isCrossedWith(t0), "Задача должна пересекаться во времени сама с собой");
         assertTrue(t0.isCrossedWith(t1), "Задачи пересекающиеся во времени должны давать True");
-        assertTrue(t1.isCrossedWith(t0), "Задачи пересекающиеся во времени при swap-е друг друга (объект-аргумент) всё ещё должны давать True");
+        assertTrue(t1.isCrossedWith(t0), "Задачи пересекающиеся во времени при swap-е друг друга " +
+                "(объект <-> аргумент) всё ещё должны давать True");
         assertTrue(t0.isCrossedWith(t2), "Задачи пересекающиеся на границе времен (закончилась одна и началась " +
                 "следующая в тот же момент времени) должны давать True");
         assertFalse(t0.isCrossedWith(t3), "Задачи не пересекающиеся во времени должны давать False");
