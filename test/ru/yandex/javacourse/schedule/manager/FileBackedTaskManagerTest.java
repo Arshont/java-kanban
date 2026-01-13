@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.yandex.javacourse.schedule.tasks.TaskStatus.NEW;
 
-public class FileBackedTaskManagerTest extends TaskManagerTest{
+public class FileBackedTaskManagerTest extends TaskManagerTest {
 
     @Test
     public void checkEmptyFile() throws IOException {

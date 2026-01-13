@@ -32,7 +32,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             generatorId = task.getId() - 1;
         }
         final int id = super.addNewTask(task);
-        if (id != 0){
+        if (id != 0) {
             save();
         }
         return id;
@@ -57,7 +57,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             generatorId = subtask.getId() - 1;
         }
         final int id = super.addNewSubtask(subtask);
-        if (id != 0){
+        if (id != 0) {
             save();
         }
         return id;
