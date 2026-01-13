@@ -7,8 +7,12 @@ import ru.yandex.javacourse.schedule.tasks.Subtask;
 import ru.yandex.javacourse.schedule.tasks.Task;
 import ru.yandex.javacourse.schedule.tasks.TaskStatus;
 
+import java.awt.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -563,6 +567,63 @@ public class TaskManagerTest {
         manager.updateSubtask(subtask0);
         assertEquals(TaskStatus.DONE, epic.getStatus(), "У эпика, у которого все подзадачи имеют статус " +
                 "DONE, должен быть статус DONE");
+    }
+
+    @Test
+    public void checkUpdateEpicTime() {
+        Epic epic = new Epic("Test 1", "Testing epic 1");
+        manager.addNewEpic(epic);
+
+        Subtask subtask1 = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 40), 1);
+        manager.addNewSubtask(subtask1);
+
+        Subtask subtask2 = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0), 1);
+        manager.addNewSubtask(subtask2);
+
+        Subtask subtask3 = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 20), 1);
+        manager.addNewSubtask(subtask3);
+
+        assertTrue(epic.getStartTime().get().isEqual(subtask2.getStartTime().get()),
+                "Время начала эпика должно совпадать со временем начала самой ранней подзадачи");
+        assertTrue(epic.getEndTime().get().isEqual(subtask1.getEndTime().get()),
+                "Время конца эпика должно совпадать со временем конца самой поздней подзадачи");
+    }
+
+    @Test
+    public void checkTasksPrioritization() {
+        Epic epic = new Epic("Test 1", "Testing epic 1");
+        manager.addNewEpic(epic);
+
+        Task task1 = new Task("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 40));
+        manager.addNewTask(task1);
+
+        Task task2 = new Task("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration);
+manager.addNewTask(task2);
+
+        Subtask subtask1 = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration, 1);
+manager.addNewSubtask(subtask1);
+
+        Subtask subtask2 = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0), 1);
+manager.addNewSubtask(subtask2);
+
+        Subtask subtask3 = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 20), 1);
+        manager.addNewSubtask(subtask3);
+
+        List<Task> priorityList = manager.getPrioritizedTasks();
+        assertEquals(3, priorityList.size(), "В списке задач с приоритетом должно быть 3 задачи");
+
+        Task pastTask = priorityList.get(0);
+        assertTrue(pastTask.getStartTime().isPresent(), "У всех задач в списке приоритетов должно быть задано время");
+        for (int i = 1; i < priorityList.size(); i++) {
+            assertTrue(priorityList.get(i).getStartTime().isPresent(), "У всех задач в списке приоритетов должно быть задано время");
+            assertTrue(pastTask.getEndTime().get().isBefore(priorityList.get(i).getStartTime().get()), "Задачи должны быть расположены в хронологическом порядке");
+        }
     }
 
     @Test
