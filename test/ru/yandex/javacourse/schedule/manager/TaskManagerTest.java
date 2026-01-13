@@ -217,21 +217,41 @@ public class TaskManagerTest {
 
     @Test
     public void testDeleteEpic() {
-        assertEquals(0, manager.getEpics().size(), "Список задач должен быть пуст");
+        assertEquals(0, manager.getEpics().size(), "Список эпиков должен быть пуст");
         assertDoesNotThrow(() -> manager.deleteEpic(42), "Метод должен выполниться корректно");
-        assertEquals(0, manager.getEpics().size(), "Список задач должен быть пуст");
+        assertEquals(0, manager.getEpics().size(), "Список эпиков должен быть пуст");
 
-        Epic epic = new Epic("Test 1", "Testing epic 1");
-        manager.addNewEpic(epic);
+        Epic epic1 = new Epic("Test 1", "Testing epic 1");
+        manager.addNewEpic(epic1);
 
-        assertEquals(1, manager.getEpics().size(), "Одна задача должна быть добавлена");
+        assertEquals(1, manager.getEpics().size(), "В списке эпиков должен быть один эпик");
         assertDoesNotThrow(() -> manager.deleteEpic(42), "Метод должен выполниться корректно");
-        assertEquals(1, manager.getEpics().size(), "Количество задач не должно измениться");
-        assertSame(epic, manager.getEpic(1), "Задача должна остаться той же");
+        assertEquals(1, manager.getEpics().size(), "Количество эпиков не должно измениться");
+        assertSame(epic1, manager.getEpic(1), "Эпик должен остаться тем же");
 
-        assertEquals(1, manager.getEpics().size(), "В списке задач должна быть одна задача");
+        assertEquals(1, manager.getEpics().size(), "В списке эпиков должен быть один эпик");
         assertDoesNotThrow(() -> manager.deleteEpic(1), "Метод должен выполниться корректно");
-        assertEquals(0, manager.getEpics().size(), "Список задач должен быть пуст");
+        assertEquals(0, manager.getEpics().size(), "Список эпиков должен быть пуст");
+
+        Epic epic2 = new Epic("Test 2", "Testing epic 2");
+        manager.addNewEpic(epic2);
+
+        Subtask subtask1 = new Subtask("Test 3", "Testing subtask 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0), 2);
+        manager.addNewSubtask(subtask1);
+
+        Subtask subtask2 = new Subtask("Test 4", "Testing subtask 2", TaskStatus.NEW, basicTestDuration,2);
+        manager.addNewSubtask(subtask2);
+
+        assertEquals(1, manager.getEpics().size(), "В списке эпиков должен быть один эпик");
+        assertEquals(2, manager.getSubtasks().size(), "В списке подзадач должна быть одна подзадача");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "В списке задач с приоритетом должна быть одна задача");
+
+        assertDoesNotThrow(() -> manager.deleteEpic(2), "Метод должен выполниться корректно");
+
+        assertEquals(0, manager.getEpics().size(), "Список эпиков должен быть пуст");
+        assertEquals(0, manager.getSubtasks().size(), "Список подзадач должен быть пуст");
+        assertEquals(0, manager.getPrioritizedTasks().size(), "Список задач с приоритетом должен быть пуст");
     }
 
     @Test
@@ -239,9 +259,9 @@ public class TaskManagerTest {
         Epic epic = new Epic("Test 1", "Testing epic 1");
         manager.addNewEpic(epic);
 
-        assertEquals(0, manager.getSubtasks().size(), "Список задач должен быть пуст");
+        assertEquals(0, manager.getSubtasks().size(), "Список подзадач должен быть пуст");
         assertDoesNotThrow(() -> manager.deleteSubtask(42), "Метод должен выполниться корректно");
-        assertEquals(0, manager.getSubtasks().size(), "Список задач должен быть пуст");
+        assertEquals(0, manager.getSubtasks().size(), "Список подзадач должен быть пуст");
 
         Subtask subtask = new Subtask("Test 2", "Testing subtask 1", TaskStatus.NEW, basicTestDuration, 1);
         manager.addNewSubtask(subtask);
@@ -252,12 +272,12 @@ public class TaskManagerTest {
 
         assertEquals(1, manager.getSubtasks().size(), "Одна задача должна быть добавлена");
         assertDoesNotThrow(() -> manager.deleteSubtask(42), "Метод должен выполниться корректно");
-        assertEquals(1, manager.getSubtasks().size(), "Количество задач не должно измениться");
+        assertEquals(1, manager.getSubtasks().size(), "Количество подзадач не должно измениться");
         assertSame(subtask, manager.getSubtask(2), "Задача должна остаться той же");
 
-        assertEquals(1, manager.getSubtasks().size(), "В списке задач должна быть одна задача");
+        assertEquals(1, manager.getSubtasks().size(), "В списке подзадач должна быть одна задача");
         assertDoesNotThrow(() -> manager.deleteSubtask(2), "Метод должен выполниться корректно");
-        assertEquals(0, manager.getSubtasks().size(), "Список задач должен быть пуст");
+        assertEquals(0, manager.getSubtasks().size(), "Список подзадач должен быть пуст");
         assertEquals(0,manager.getEpic(1).getSubtaskIds().size(), "У эпика не должно остаться подзадач");
     }
 
@@ -352,13 +372,14 @@ public class TaskManagerTest {
         Task task = new Task("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 0));
         manager.addNewTask(task);
+        assertEquals(1, manager.getTasks().size(), "Должна быть добавлена одна задача");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
 
         Task task1 = new Task(1,"Test 2", "Testing task 2", TaskStatus.NEW, basicTestDuration);
         manager.updateTask(task1);
         assertEquals(1, manager.getTasks().size(), "Не должно быть добавлено новых задач");
-        assertEquals(0, manager.getPrioritizedTasks().size(), "Список задач с приоритетом должен быть пуст");
+        assertEquals(0, manager.getPrioritizedTasks().size(), "Задача с приоритетом должна быть удалена");
         assertSame(task1, manager.getTask(1), "Задача должна быть замена новой");
-        assertNotSame(task, manager.getTask(1), "Задача должна быть замена новой");
 
         Task task2 = new Task(1,"Test 3", "Testing task 3", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 0));
@@ -367,84 +388,138 @@ public class TaskManagerTest {
         assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
         assertSame(task2, manager.getTask(1), "Задача должна быть замена новой");
 
-        Task taskForUpdate = new Task("Test 2", "Testing task 2", TaskStatus.NEW, basicTestDuration);
+        Task taskForUpdate = new Task("Test 2", "Testing task 4", TaskStatus.NEW, basicTestDuration);
         manager.addNewTask(taskForUpdate);
         assertEquals(2, manager.getTasks().size(), "Должно быть добавлено две задачи");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Не должно быть добавлено новых задач с приоритетом");
         assertSame(taskForUpdate, manager.getTask(2), "Новая задача должна быть добавлена");
 
-        Task task3 = new Task(2, "Test 4", "Testing task 4", TaskStatus.NEW, basicTestDuration,
+        Task taskWithTimeCrossings1 = new Task(2, "Test 4", "Testing task 5", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 10));
-        manager.updateTask(task3);
+        manager.updateTask(taskWithTimeCrossings1);
         assertEquals(2, manager.getTasks().size(), "Не должно быть добавлено новых задач");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Не должно быть добавлено новых задач с приоритетом");
-        assertSame(task3, manager.getTask(2), "Задача должна быть замена новой");
-        assertNotSame(taskForUpdate, manager.getTask(2), "Задача должна быть заменена новой");
+        assertSame(taskForUpdate, manager.getTask(2), "Задача не должна быть замена новой");
 
-        Task task4 = new Task(2, "Test 5", "Testing task 5", TaskStatus.NEW, basicTestDuration,
+        Task taskWithTimeCrossings2 = new Task(2, "Test 5", "Testing task 6", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 15));
-        manager.updateTask(task4);
+        manager.updateTask(taskWithTimeCrossings2);
         assertEquals(2, manager.getTasks().size(), "Не должно быть добавлено новых задач");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Не должно быть добавлено новых задач с приоритетом");
-        assertNotSame(task4, manager.getTask(2), "Задача не должна быть замена новой");
-        assertSame(task3, manager.getTask(2), "Задача не должна быть заменена новой");
+        assertSame(taskForUpdate, manager.getTask(2), "Задача не должна быть замена новой");
 
-        Task task5 = new Task(2, "Test 6", "Testing task 6", TaskStatus.NEW, basicTestDuration,
+        Task taskWithoutTimeCrossings = new Task(2, "Test 6", "Testing task 7", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 20));
-        manager.updateTask(task5);
+        manager.updateTask(taskWithoutTimeCrossings);
         assertEquals(2, manager.getTasks().size(), "Не должно быть добавлено новых задач");
         assertEquals(2, manager.getPrioritizedTasks().size(), "Должна быть добавлена вторая задача с приоритетом");
-        assertNotSame(task5, manager.getTask(2), "Задача должна быть замена новой");
-        assertSame(task3, manager.getTask(2), "Задача должна быть заменена новой");
+        assertSame(taskWithoutTimeCrossings, manager.getTask(2), "Задача должна быть замена новой");
     }
 
-//    @Test
-//    public void testAddSubtaskWithTime() {
-//        Epic epic = new Epic("Test 1", "Testing epic 1");
-//        manager.addNewEpic(epic);
-//
-//        Subtask subtask = new Subtask("Test 2", "Testing subtask 1", TaskStatus.NEW, basicTestDuration,
-//                LocalDateTime.of(2025, 12, 20, 8, 0), 1);
-//        manager.addNewSubtask(subtask);
-//        assertEquals(1, manager.getSubtasks().size(), "Должна быть добавлена одна задача");
-//        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
-//        assertEquals(1, manager.getEpic(1).getSubtaskIds().size(), "У эпика должна быть добавлена одна подзадача");
-//
-//        Subtask subtask1 = new Subtask("Test 3", "Testing subtask 2", TaskStatus.NEW, basicTestDuration, 1);
-//        manager.addNewSubtask(subtask1);
-//        assertEquals(2, manager.getSubtasks().size(), "Должно быть добавлено две задача");
-//        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
-//        assertEquals(2, manager.getEpic(1).getSubtaskIds().size(), "У эпика должно быть добавлено две подзадачи");
-//
-//        Subtask subtask2 = new Subtask("Test 4", "Testing subtask 3", TaskStatus.NEW, basicTestDuration,
-//                LocalDateTime.of(2025, 12, 20, 8, 0), 1);
-//        manager.addNewSubtask(subtask2);
-//        assertEquals(2, manager.getSubtasks().size(), "Должно быть добавлено две задача");
-//        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
-//        assertEquals(2, manager.getEpic(1).getSubtaskIds().size(), "У эпика должно быть добавлено две подзадачи");
-//
-//        Subtask subtask3 = new Subtask("Test 5", "Testing subtask 4", TaskStatus.NEW, basicTestDuration,
-//                LocalDateTime.of(2025, 12, 20, 8, 10), 1);
-//        manager.addNewSubtask(subtask3);
-//        assertEquals(2, manager.getSubtasks().size(), "Должно быть добавлено две задача");
-//        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
-//        assertEquals(2, manager.getEpic(1).getSubtaskIds().size(), "У эпика должно быть добавлено две подзадачи");
-//
-//        Subtask subtask4 = new Subtask("Test 6", "Testing subtask 5", TaskStatus.NEW, basicTestDuration,
-//                LocalDateTime.of(2025, 12, 20, 8, 15), 1);
-//        manager.addNewSubtask(subtask4);
-//        assertEquals(2, manager.getSubtasks().size(), "Должно быть добавлено две задача");
-//        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
-//        assertEquals(2, manager.getEpic(1).getSubtaskIds().size(), "У эпика должно быть добавлено две подзадачи");
-//
-//        Subtask subtask5 = new Subtask("Test 7", "Testing subtask 6", TaskStatus.NEW, basicTestDuration,
-//                LocalDateTime.of(2025, 12, 20, 8, 20), 1);
-//        manager.addNewSubtask(subtask5);
-//        assertEquals(3, manager.getSubtasks().size(), "Должно быть добавлено три задачи");
-//        assertEquals(2, manager.getPrioritizedTasks().size(), "Должно быть добавлено две задачи с приоритетом");
-//        assertEquals(3, manager.getEpic(1).getSubtaskIds().size(), "У эпика должно быть добавлено три подзадачи");
-//
-//    }
+    @Test
+    public void testUpdateSubtaskWithTime() {
+        Epic epic = new Epic("Test 1", "Testing epic 1");
+        manager.addNewEpic(epic);
+
+        Subtask subtask = new Subtask("Test 1", "Testing subtask 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0), 1);
+        manager.addNewSubtask(subtask);
+        assertEquals(1, manager.getSubtasks().size(), "Должна быть добавлена одна подзадача");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна подзадача с приоритетом");
+
+        Subtask subtask1 = new Subtask(2,"Test 2", "Testing subtask 2", TaskStatus.NEW, basicTestDuration, 1);
+        manager.updateSubtask(subtask1);
+        assertEquals(1, manager.getSubtasks().size(), "Не должно быть добавлено новых подзадач");
+        assertEquals(0, manager.getPrioritizedTasks().size(), "Подзадача с приоритетом должна быть удалена");
+        assertSame(subtask1, manager.getSubtask(2), "Подзадача должна быть замена новой");
+
+        Subtask subtask2 = new Subtask(2,"Test 3", "Testing subtask 3", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0), 1);
+        manager.updateSubtask(subtask2);
+        assertEquals(1, manager.getSubtasks().size(), "Не должно быть добавлено новых подзадач");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна подзадача с приоритетом");
+        assertSame(subtask2, manager.getSubtask(2), "Подзадача должна быть замена новой");
+
+        Subtask subtaskForUpdate = new Subtask("Test 2", "Testing subtask 4", TaskStatus.NEW, basicTestDuration, 1);
+        manager.addNewSubtask(subtaskForUpdate);
+        assertEquals(2, manager.getSubtasks().size(), "Должно быть добавлено две задачи");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Не должно быть добавлено новых подзадач с приоритетом");
+        assertSame(subtaskForUpdate, manager.getSubtask(3), "Новая подзадача должна быть добавлена");
+
+        Subtask subtaskWithTimeCrossings1 = new Subtask(3, "Test 4", "Testing subtask 5", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 10), 1);
+        manager.updateSubtask(subtaskWithTimeCrossings1);
+        assertEquals(2, manager.getSubtasks().size(), "Не должно быть добавлено новых подзадач");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Не должно быть добавлено новых подзадач с приоритетом");
+        assertSame(subtaskForUpdate, manager.getSubtask(3), "Подзадача не должна быть замена новой");
+
+        Subtask subtaskWithTimeCrossings2 = new Subtask(3, "Test 5", "Testing subtask 6", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 15), 1);
+        manager.updateSubtask(subtaskWithTimeCrossings2);
+        assertEquals(2, manager.getSubtasks().size(), "Не должно быть добавлено новых подзадач");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Не должно быть добавлено новых подзадач с приоритетом");
+        assertSame(subtaskForUpdate, manager.getSubtask(3), "Подзадача не должна быть замена новой");
+
+        Subtask subtaskWithoutTimeCrossings = new Subtask(3, "Test 6", "Testing subtask 7", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 20), 1);
+        manager.updateSubtask(subtaskWithoutTimeCrossings);
+        assertEquals(2, manager.getSubtasks().size(), "Не должно быть добавлено новых подзадач");
+        assertEquals(2, manager.getPrioritizedTasks().size(), "Должна быть добавлена вторая подзадача с приоритетом");
+        assertSame(subtaskWithoutTimeCrossings, manager.getSubtask(3), "Подзадача должна быть замена новой");
+    }
+
+    @Test
+    public void testDeleteTaskWithTime() {
+        Task task = new Task("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0));
+        manager.addNewTask(task);
+        assertEquals(1, manager.getTasks().size(), "Должна быть добавлена одна задача");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
+
+        Task task1 = new Task("Test 2", "Testing task 2", TaskStatus.NEW, basicTestDuration);
+        manager.addNewTask(task1);
+        assertEquals(2, manager.getTasks().size(), "Должно быть добавлено две задачи");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
+
+        manager.deleteTask(1);
+        assertEquals(1, manager.getTasks().size(), "Должна быть добавлена одна задача");
+        assertEquals(0, manager.getPrioritizedTasks().size(), "Не должно быть задач с приоритетом");
+
+        manager.deleteTask(2);
+        assertEquals(0, manager.getTasks().size(), "Не должно остаться задач");
+        assertEquals(0, manager.getPrioritizedTasks().size(), "Не должно быть задач с приоритетом");
+    }
+
+    @Test
+    public void testDeleteSubtaskWithTime() {
+        Epic epic = new Epic("Test 1", "Testing epic 1");
+        manager.addNewEpic(epic);
+
+        Subtask subtask = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0), 1);
+        manager.addNewSubtask(subtask);
+        assertEquals(1, manager.getSubtasks().size(), "Должна быть добавлена одна подзадача");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна подзадача с приоритетом");
+        assertEquals(1, manager.getEpicSubtasks(1).size(), "Эпик должен иметь одну подзадачу");
+
+        Subtask subtask1 = new Subtask("Test 2", "Testing task 2", TaskStatus.NEW, basicTestDuration, 1);
+        manager.addNewSubtask(subtask1);
+        assertEquals(2, manager.getSubtasks().size(), "Должно быть добавлено две задачи");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна подзадача с приоритетом");
+        assertEquals(2, manager.getEpicSubtasks(1).size(), "Эпик должен иметь две подзадачи");
+
+
+        manager.deleteSubtask(2);
+        assertEquals(1, manager.getSubtasks().size(), "Должна быть добавлена одна подзадача");
+        assertEquals(0, manager.getPrioritizedTasks().size(), "Не должно быть подзадач с приоритетом");
+        assertEquals(1, manager.getEpicSubtasks(1).size(), "Эпик должен иметь одну подзадачу");
+
+
+        manager.deleteSubtask(3);
+        assertEquals(0, manager.getSubtasks().size(), "Не должно остаться подзадач");
+        assertEquals(0, manager.getPrioritizedTasks().size(), "Не должно быть подзадач с приоритетом");
+        assertEquals(0, manager.getEpicSubtasks(1).size(), "Эпик не должен иметь подзадач");
+    }
 
     @Test
     public void testUpdateEpicStatus() {
@@ -490,37 +565,97 @@ public class TaskManagerTest {
                 "DONE, должен быть статус DONE");
     }
 
+    @Test
+    public void testDeleteTasks() {
+        Task task1 = new Task("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0));
+        manager.addNewTask(task1);
 
-//    @Test
-//    public void checkTaskAddedInHistory() {
-//        Task task = new Task("Test 1", "Testing task 1", TaskStatus.NEW);
-//        manager.addNewTask(task);
-//        assertEquals(1, manager.getTasks().size(), "task should be added");
-//        manager.getTask(1);
-//        assertTrue(manager.getHistory().contains(task), "task should be added in history");
-//    }
-//
-//    @Test
-//    public void checkTaskRemovedFromHistory() {
-//        Task task = new Task("Test 1", "Testing task 1", TaskStatus.NEW);
-//        manager.addNewTask(task);
-//        assertEquals(1, manager.getTasks().size(), "task should be added");
-//        manager.getTask(1);
-//        assertTrue(manager.getHistory().contains(task), "task should be added in history");
-//        manager.deleteTask(1);
-//        assertEquals(0, manager.getTasks().size(), "task should be removed");
-//        assertFalse(manager.getHistory().contains(task), "task should be removed from history");
-//    }
-//
-//    @Test
-//    public void checkHistoryLimitIsOver10() {
-//        for (int i = 0; i < 11; i++) {
-//            Task task = new Task("Test 1", "Testing task 1", TaskStatus.NEW);
-//            manager.addNewTask(task);
-//            assertEquals(i + 1, manager.getTasks().size(), "task should be added");
-//            manager.getTask(i + 1);
-//            assertEquals(i + 1, manager.getHistory().size(), "task should be added in history");
-//        }
-//    }
+        Task task2 = new Task("Test 2", "Testing task 2", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 35));
+        manager.addNewTask(task2);
 
+        Task task3 = new Task("Test 3", "Testing task 3", TaskStatus.NEW, basicTestDuration);
+        manager.addNewTask(task3);
+
+        assertEquals(3, manager.getTasks().size(), "Должно быть добавлено три задачи");
+        assertEquals(2, manager.getPrioritizedTasks().size(), "Должно быть добавлено две задачи с приоритетом");
+
+        manager.deleteTasks();
+
+        assertEquals(0, manager.getTasks().size(), "Список задач должен быть пуст");
+        assertEquals(0, manager.getPrioritizedTasks().size(), "Список задач с приоритетом должен быть пуст");
+    }
+
+    @Test
+    public void checkDeleteEpics() {
+        Epic epic1 = new Epic("Test 1", "Testing epic 1");
+        manager.addNewEpic(epic1);
+
+        Epic epic2 = new Epic("Test 2", "Testing epic 2");
+        manager.addNewEpic(epic2);
+
+        Subtask subtask1 = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0), 1);
+        manager.addNewSubtask(subtask1);
+
+        Subtask subtask2 = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration, 1);
+        manager.addNewSubtask(subtask2);
+
+        assertEquals(2, manager.getEpics().size(), "Должно быть добавлено два эпика");
+        assertEquals(2, manager.getSubtasks().size(), "Должно быть добавлено две подзадачи");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
+
+        manager.deleteEpics();
+
+        assertEquals(0, manager.getEpics().size(), "Список эпиков должен быть пуст");
+        assertEquals(0, manager.getSubtasks().size(), "Список подзадач должен быть пуст");
+        assertEquals(0, manager.getPrioritizedTasks().size(), "Список задач с приоритетом должен быть пуст");
+    }
+
+    @Test
+    public void checkDeleteSubtasks() {
+        Epic epic1 = new Epic("Test 1", "Testing epic 1");
+        manager.addNewEpic(epic1);
+
+        Epic epic2 = new Epic("Test 2", "Testing epic 2");
+        manager.addNewEpic(epic2);
+
+        Subtask subtask1 = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0), 1);
+        manager.addNewSubtask(subtask1);
+
+        Subtask subtask2 = new Subtask("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration, 1);
+        manager.addNewSubtask(subtask2);
+
+        assertEquals(2, manager.getEpics().size(), "Должно быть добавлено два эпика");
+        assertEquals(2, manager.getSubtasks().size(), "Должно быть добавлено две подзадачи");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
+
+        manager.deleteSubtasks();
+
+        assertEquals(2, manager.getEpics().size(), "Должно быть добавлено два эпика");
+        assertEquals(0, manager.getSubtasks().size(), "Список подзадач должен быть пуст");
+        assertEquals(0, manager.getPrioritizedTasks().size(), "Список задач с приоритетом должен быть пуст");
+    }
+
+    @Test
+    public void checkGetHistory() {
+        Task task1 = new Task("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0));
+        manager.addNewTask(task1);
+
+        Task task2 = new Task("Test 2", "Testing task 2", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 35));
+        manager.addNewTask(task2);
+
+        Task task3 = new Task("Test 3", "Testing task 3", TaskStatus.NEW, basicTestDuration);
+        manager.addNewTask(task3);
+
+        manager.getTask(1);
+        manager.getTask(2);
+        manager.getTask(3);
+
+        assertEquals(3, manager.getHistory().size(), "В истории должно быть три записи");
+    }
 }
