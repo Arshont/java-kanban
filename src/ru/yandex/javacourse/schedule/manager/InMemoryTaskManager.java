@@ -1,13 +1,13 @@
 package ru.yandex.javacourse.schedule.manager;
 
-import static ru.yandex.javacourse.schedule.tasks.TaskStatus.IN_PROGRESS;
-import static ru.yandex.javacourse.schedule.tasks.TaskStatus.NEW;
+import ru.yandex.javacourse.schedule.tasks.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import ru.yandex.javacourse.schedule.tasks.*;
+import static ru.yandex.javacourse.schedule.tasks.TaskStatus.IN_PROGRESS;
+import static ru.yandex.javacourse.schedule.tasks.TaskStatus.NEW;
 
 public class InMemoryTaskManager implements TaskManager {
 

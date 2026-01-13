@@ -1,16 +1,7 @@
 package ru.yandex.javacourse.schedule;
 
-import static ru.yandex.javacourse.schedule.tasks.TaskStatus.NEW;
-
-import ru.yandex.javacourse.schedule.manager.Managers;
 import ru.yandex.javacourse.schedule.manager.TaskManager;
-import ru.yandex.javacourse.schedule.tasks.Epic;
-import ru.yandex.javacourse.schedule.tasks.Subtask;
 import ru.yandex.javacourse.schedule.tasks.Task;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Random;
 
 public class Main {
     public static void main(String[] args) {

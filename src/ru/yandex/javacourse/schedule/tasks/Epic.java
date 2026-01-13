@@ -1,11 +1,11 @@
 package ru.yandex.javacourse.schedule.tasks;
 
-import static ru.yandex.javacourse.schedule.tasks.TaskStatus.NEW;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static ru.yandex.javacourse.schedule.tasks.TaskStatus.NEW;
 
 public class Epic extends Task {
 
