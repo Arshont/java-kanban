@@ -1,10 +1,11 @@
 package ru.yandex.javacourse.schedule.manager;
 
-import java.util.List;
-
 import ru.yandex.javacourse.schedule.tasks.Epic;
 import ru.yandex.javacourse.schedule.tasks.Subtask;
 import ru.yandex.javacourse.schedule.tasks.Task;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Task manager.
@@ -20,11 +21,11 @@ public interface TaskManager {
 
     List<Subtask> getEpicSubtasks(int epicId);
 
-    Task getTask(int id);
+    Optional<Task> getTask(int id);
 
-    Subtask getSubtask(int id);
+    Optional<Subtask> getSubtask(int id);
 
-    Epic getEpic(int id);
+    Optional<Epic> getEpic(int id);
 
     int addNewTask(Task task);
 
@@ -51,4 +52,12 @@ public interface TaskManager {
     void deleteEpics();
 
     List<Task> getHistory();
+
+    List<Task> getPrioritizedTasks();
+
+//    boolean isTaskAlreadyExists(Task task);
+//
+//    boolean isTaskAlreadyExists(Task task);
+//
+//    boolean isTaskAlreadyExists(Task task);
 }

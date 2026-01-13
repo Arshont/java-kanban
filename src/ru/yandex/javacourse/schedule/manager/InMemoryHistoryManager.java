@@ -1,10 +1,10 @@
 package ru.yandex.javacourse.schedule.manager;
 
+import ru.yandex.javacourse.schedule.tasks.Task;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import ru.yandex.javacourse.schedule.tasks.Task;
 
 /**
  * In memory history manager.

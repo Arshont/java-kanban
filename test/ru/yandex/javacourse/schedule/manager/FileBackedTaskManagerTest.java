@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.yandex.javacourse.schedule.tasks.TaskStatus.NEW;
 
-public class FileBackedTaskManagerTest {
+public class FileBackedTaskManagerTest extends TaskManagerTest {
 
     @Test
     public void checkEmptyFile() throws IOException {
@@ -39,9 +39,9 @@ public class FileBackedTaskManagerTest {
         Path file = Files.createTempFile(null, null);
         TaskManager manager = Managers.getFileManager(file.toString());
 
-        Task task = new Task(42, "Task", "Task description", TaskStatus.NEW);
+        Task task = new Task(42, "Task", "Task description", TaskStatus.NEW, basicTestDuration);
         Epic epic = new Epic(43, "Epic", "Epic description");
-        Subtask subtask = new Subtask(44, "Subtask", "Subtask description", TaskStatus.NEW, 43);
+        Subtask subtask = new Subtask(44, "Subtask", "Subtask description", TaskStatus.NEW, basicTestDuration, 43);
 
         manager.addNewTask(task);
         manager.addNewEpic(epic);
@@ -51,9 +51,9 @@ public class FileBackedTaskManagerTest {
         assertEquals(1, manager.getEpics().size(), "В менеджер должна быть добавлена один эпик");
         assertEquals(1, manager.getSubtasks().size(), "В менеджер должна быть добавлена одна подзадача");
 
-        assertEquals(42, manager.getTask(42).getId(), "ID задачи не должен быть измененён");
-        assertEquals(43, manager.getEpic(43).getId(), "ID эпика не должен быть измененён");
-        assertEquals(44, manager.getSubtask(44).getId(), "ID подзадачи не должен быть измененён");
+        assertEquals(42, manager.getTask(42).get().getId(), "ID задачи не должен быть измененён");
+        assertEquals(43, manager.getEpic(43).get().getId(), "ID эпика не должен быть измененён");
+        assertEquals(44, manager.getSubtask(44).get().getId(), "ID подзадачи не должен быть измененён");
     }
 
     @Test
@@ -63,8 +63,8 @@ public class FileBackedTaskManagerTest {
 
         TaskManager manager1 = Managers.getFileManager(file1.toString());
 
-        Task task1 = new Task("Task #1", "Task1 description", NEW);
-        Task task2 = new Task("Task #2", "Task2 description", NEW);
+        Task task1 = new Task("Task #1", "Task1 description", NEW, basicTestDuration);
+        Task task2 = new Task("Task #2", "Task2 description", NEW, basicTestDuration);
         manager1.addNewTask(task1);
         manager1.addNewTask(task2);
 
@@ -73,9 +73,9 @@ public class FileBackedTaskManagerTest {
         manager1.addNewEpic(epic1);
         manager1.addNewEpic(epic2);
 
-        Subtask subtask1 = new Subtask("Subtask #1-1", "Subtask1 description", NEW, epic1.getId());
-        Subtask subtask2 = new Subtask("Subtask #2-1", "Subtask1 description", NEW, epic1.getId());
-        Subtask subtask3 = new Subtask("Subtask #3-1", "Subtask1 description", NEW, epic2.getId());
+        Subtask subtask1 = new Subtask("Subtask #1-1", "Subtask1 description", NEW, basicTestDuration, epic1.getId());
+        Subtask subtask2 = new Subtask("Subtask #2-1", "Subtask1 description", NEW, basicTestDuration, epic1.getId());
+        Subtask subtask3 = new Subtask("Subtask #3-1", "Subtask1 description", NEW, basicTestDuration, epic2.getId());
         manager1.addNewSubtask(subtask1);
         manager1.addNewSubtask(subtask2);
         manager1.addNewSubtask(subtask3);
