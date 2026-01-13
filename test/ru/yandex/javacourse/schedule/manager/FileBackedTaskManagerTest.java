@@ -51,9 +51,9 @@ public class FileBackedTaskManagerTest extends TaskManagerTest{
         assertEquals(1, manager.getEpics().size(), "В менеджер должна быть добавлена один эпик");
         assertEquals(1, manager.getSubtasks().size(), "В менеджер должна быть добавлена одна подзадача");
 
-        assertEquals(42, manager.getTask(42).getId(), "ID задачи не должен быть измененён");
-        assertEquals(43, manager.getEpic(43).getId(), "ID эпика не должен быть измененён");
-        assertEquals(44, manager.getSubtask(44).getId(), "ID подзадачи не должен быть измененён");
+        assertEquals(42, manager.getTask(42).get().getId(), "ID задачи не должен быть измененён");
+        assertEquals(43, manager.getEpic(43).get().getId(), "ID эпика не должен быть измененён");
+        assertEquals(44, manager.getSubtask(44).get().getId(), "ID подзадачи не должен быть измененён");
     }
 
     @Test
