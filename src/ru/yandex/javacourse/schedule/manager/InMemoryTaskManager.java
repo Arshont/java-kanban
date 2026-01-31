@@ -1,5 +1,9 @@
 package ru.yandex.javacourse.schedule.manager;
 
+import ru.yandex.javacourse.schedule.http.exceptions.EpicNotFoundException;
+import ru.yandex.javacourse.schedule.http.exceptions.HasInteractionsException;
+import ru.yandex.javacourse.schedule.http.exceptions.NotFoundException;
+import ru.yandex.javacourse.schedule.http.exceptions.SubtasksNotFoundException;
 import ru.yandex.javacourse.schedule.tasks.*;
 
 import java.time.Duration;
@@ -35,11 +39,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Subtask> getEpicSubtasks(int epicId) {
+    public ArrayList<Subtask> getEpicSubtasks(int epicId) throws NotFoundException{
         ArrayList<Subtask> tasks = new ArrayList<>();
         Epic epic = epics.get(epicId);
         if (epic == null) {
-            return null;
+            throw new NotFoundException();
         }
         epic.getSubtaskIds().stream().map(subtasks::get).forEach(tasks::add);
         return tasks;
@@ -67,7 +71,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int addNewTask(Task task) {
+    public int addNewTask(Task task){
         if (!hasNewTaskTimeCrossings(task) && !tasks.containsValue(task)) {
             final int id = ++generatorId;
             task.setId(id);
@@ -76,8 +80,9 @@ public class InMemoryTaskManager implements TaskManager {
                 prioritizedTasks.add(task);
             }
             return id;
+        } else {
+            return 0;
         }
-        return 0;
     }
 
     @Override
@@ -93,12 +98,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Integer addNewSubtask(Subtask subtask) {
+    public int addNewSubtask(Subtask subtask) {
         if (!hasNewTaskTimeCrossings(subtask) && !subtasks.containsValue(subtask)) {
             final int epicId = subtask.getEpicId();
             Epic epic = epics.get(epicId);
             if (epic == null) {
-                return null;
+                return 0;
             }
             final int id = ++generatorId;
             subtask.setId(id);
@@ -114,11 +119,14 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws HasInteractionsException, NotFoundException {
         final int id = task.getId();
         final Task savedTask = tasks.get(id);
-        if (savedTask == null || hasNewTaskTimeCrossings(task)) {
-            return;
+        if (savedTask == null) {
+            throw new NotFoundException();
+        }
+        if (hasNewTaskTimeCrossings(task)) {
+            throw new HasInteractionsException();
         }
         if (savedTask.getStartTime().isPresent()) {
             prioritizedTasks.remove(savedTask);
@@ -130,26 +138,43 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) throws NotFoundException, HasInteractionsException, SubtasksNotFoundException {
         final int id = epic.getId();
         final Epic savedEpic = epics.get(id);
+
         if (savedEpic == null) {
-            return;
+            throw new NotFoundException();
         }
+
+        boolean isAllSubtasksContained = epic.subtaskIds.stream().allMatch(subtasks::containsKey);
+        if (!isAllSubtasksContained) {
+            throw new SubtasksNotFoundException();
+        }
+
+        boolean hasNotInteractions = epic.subtaskIds.stream()
+                        .allMatch(subId -> getSubtask(subId).get().getEpicId() == id);
+        if (!hasNotInteractions) {
+            throw new HasInteractionsException();
+        }
+
         epics.put(id, epic);
+        updateEpicAttributes(id);
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) {
+    public void updateSubtask(Subtask subtask) throws EpicNotFoundException, HasInteractionsException, NotFoundException {
         final int id = subtask.getId();
         final int epicId = subtask.getEpicId();
         final Subtask savedSubtask = subtasks.get(id);
-        if (savedSubtask == null || hasNewTaskTimeCrossings(subtask)) {
-            return;
+        if (savedSubtask == null) {
+            throw new NotFoundException();
+        }
+        if (hasNewTaskTimeCrossings(subtask)) {
+            throw new HasInteractionsException();
         }
         final Epic epic = epics.get(epicId);
         if (epic == null) {
-            return;
+            throw new EpicNotFoundException();
         }
         if (savedSubtask.getStartTime().isPresent()) {
             prioritizedTasks.remove(savedSubtask);
@@ -162,17 +187,21 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteTask(int id) {
+    public void deleteTask(int id) throws NotFoundException {
+        Optional<Task> taskOpt = getTask(id);
+        if (taskOpt.isEmpty()) {
+            throw new NotFoundException();
+        }
         prioritizedTasks.remove(getTask(id).orElse(null));
         tasks.remove(id);
         historyManager.remove(id);
     }
 
     @Override
-    public void deleteEpic(int id) {
+    public void deleteEpic(int id) throws NotFoundException {
         final Epic epic = epics.remove(id);
         if (epic == null) {
-            return;
+            throw new NotFoundException();
         }
         historyManager.remove(id);
         epic.getSubtaskIds().forEach(subtaskId -> {
@@ -183,10 +212,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteSubtask(int id) {
+    public void deleteSubtask(int id) throws NotFoundException {
         Subtask subtask = subtasks.remove(id);
         if (subtask == null) {
-            return;
+            throw new NotFoundException();
         }
         Epic epic = epics.get(subtask.getEpicId());
         prioritizedTasks.remove(subtask);
@@ -289,7 +318,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected boolean hasNewTaskTimeCrossings(Task task) {
         if (!prioritizedTasks.isEmpty() && task.getStartTime().isPresent()) {
-            return prioritizedTasks.stream().anyMatch(pTask -> pTask.isCrossedWith(task));
+            return prioritizedTasks.stream().anyMatch(pTask -> pTask.isCrossedWith(task) && (!pTask.equals(task)));
         }
         return false;
     }
