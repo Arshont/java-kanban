@@ -38,12 +38,12 @@ public class HttpTaskServer {
         try {
             taskServer = new HttpTaskServer();
             taskServer.startServer();
+//            taskServer.server.start();
         } catch (IOException e) {
-
             throw new RuntimeException(e);
         } finally {
             assert taskServer != null;
-            taskServer.stopServer();
+//            taskServer.stopServer();
         }
     }
 }
