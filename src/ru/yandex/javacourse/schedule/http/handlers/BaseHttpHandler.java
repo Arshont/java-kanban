@@ -2,6 +2,7 @@ package ru.yandex.javacourse.schedule.http.handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import ru.yandex.javacourse.schedule.manager.TaskManager;
@@ -18,7 +19,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
         gson = getGson();
     }
 
-    protected Gson getGson () {
+    protected Gson getGson() {
         return new GsonBuilder().serializeNulls().create();
     }
 
@@ -36,10 +37,12 @@ public abstract class BaseHttpHandler implements HttpHandler {
     }
 
     protected void sendCreated(HttpExchange h, int id) throws IOException {
-        byte[] resp = ("task_id:" + id).getBytes(StandardCharsets.UTF_8);
+        JsonObject json = new JsonObject();
+        json.addProperty("task_id", id);
+        String body = gson.toJson(json);
         h.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
-        h.sendResponseHeaders(201, resp.length);
-        h.getResponseBody().write(resp);
+        h.sendResponseHeaders(201, body.length());
+        h.getResponseBody().write(body.getBytes());
         h.close();
     }
 

@@ -4,7 +4,10 @@ import ru.yandex.javacourse.schedule.http.exceptions.EpicNotFoundException;
 import ru.yandex.javacourse.schedule.http.exceptions.HasInteractionsException;
 import ru.yandex.javacourse.schedule.http.exceptions.NotFoundException;
 import ru.yandex.javacourse.schedule.http.exceptions.SubtasksNotFoundException;
-import ru.yandex.javacourse.schedule.tasks.*;
+import ru.yandex.javacourse.schedule.tasks.Epic;
+import ru.yandex.javacourse.schedule.tasks.Subtask;
+import ru.yandex.javacourse.schedule.tasks.Task;
+import ru.yandex.javacourse.schedule.tasks.TaskStatus;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,7 +22,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Epic> epics = new HashMap<>();
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
     // Возможно, стоило использовать лямба-функцию вместо компаратора?
-    protected final Set<Task> prioritizedTasks = new TreeSet<>(new TaskTimeComparator());
+    protected final Set<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing((Task o) -> o.getStartTime().get()));
     protected int generatorId = 0;
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
@@ -39,7 +42,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Subtask> getEpicSubtasks(int epicId) throws NotFoundException{
+    public ArrayList<Subtask> getEpicSubtasks(int epicId) throws NotFoundException {
         ArrayList<Subtask> tasks = new ArrayList<>();
         Epic epic = epics.get(epicId);
         if (epic == null) {
@@ -71,7 +74,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int addNewTask(Task task){
+    public int addNewTask(Task task) {
         if (!hasNewTaskTimeCrossings(task) && !tasks.containsValue(task)) {
             final int id = ++generatorId;
             task.setId(id);
@@ -152,7 +155,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         boolean hasNotInteractions = epic.subtaskIds.stream()
-                        .allMatch(subId -> getSubtask(subId).get().getEpicId() == id);
+                .allMatch(subId -> getSubtask(subId).get().getEpicId() == id);
         if (!hasNotInteractions) {
             throw new HasInteractionsException();
         }

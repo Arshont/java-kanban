@@ -49,7 +49,7 @@ public class EpicsHttpHandler extends TasksHttpHandler {
             switch (method) {
                 case "GET":
                     if (pathElements.length == 4) {
-                        if (!pathElements[3].equals("subtasks")){
+                        if (!pathElements[3].equals("subtasks")) {
                             throw new BadRequestException();
                         }
                         handleGetEpicSubtasks(exchange, Integer.parseInt(pathElements[2]));

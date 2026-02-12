@@ -384,7 +384,7 @@ public class TaskManagerTest {
         assertDoesNotThrow(() -> manager.updateTask(taskWithSameTimeAndId), "Метод не должен выбрасывать исключения");
         assertEquals(1, manager.getTasks().size(), "Должна быть добавлена одна задача");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
-         assertSame(taskWithSameTimeAndId, manager.getTask(1).get(), "Задача должна быть замена новой");
+        assertSame(taskWithSameTimeAndId, manager.getTask(1).get(), "Задача должна быть замена новой");
 
         Task task1 = new Task(1, "Test 2", "Testing task 2", TaskStatus.NEW, basicTestDuration);
         assertDoesNotThrow(() -> manager.updateTask(task1), "Метод не должен выбрасывать исключения");

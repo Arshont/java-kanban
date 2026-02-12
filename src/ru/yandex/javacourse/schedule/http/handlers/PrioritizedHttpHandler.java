@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class PrioritizedHttpHandler extends BaseHttpHandler{
+public class PrioritizedHttpHandler extends BaseHttpHandler {
     public PrioritizedHttpHandler(TaskManager manager) {
         super(manager);
     }

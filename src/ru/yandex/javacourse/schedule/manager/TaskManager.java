@@ -59,9 +59,4 @@ public interface TaskManager {
 
     List<Task> getPrioritizedTasks();
 
-//    boolean isTaskAlreadyExists(Task task);
-//
-//    boolean isTaskAlreadyExists(Task task);
-//
-//    boolean isTaskAlreadyExists(Task task);
 }

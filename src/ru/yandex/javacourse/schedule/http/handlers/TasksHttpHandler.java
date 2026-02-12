@@ -1,6 +1,8 @@
 package ru.yandex.javacourse.schedule.http.handlers;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.sun.net.httpserver.HttpExchange;
 import ru.yandex.javacourse.schedule.http.exceptions.BadRequestException;
 import ru.yandex.javacourse.schedule.http.exceptions.HasInteractionsException;
@@ -99,11 +101,11 @@ public class TasksHttpHandler extends BaseHttpHandler {
 
     private void handleUpdateTask(HttpExchange exchange, int taskId)
             throws IOException, NotFoundException, HasInteractionsException {
-            Task taskForUpdate = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()), Task.class);
-            // Исправление несоответствия taskId в теле запроса с taskId в адресе
-            taskForUpdate.setId(taskId);
-            manager.updateTask(taskForUpdate);
-            sendCreated(exchange, taskId);
+        Task taskForUpdate = gson.fromJson(new String(exchange.getRequestBody().readAllBytes()), Task.class);
+        // Исправление несоответствия taskId в теле запроса с taskId в адресе
+        taskForUpdate.setId(taskId);
+        manager.updateTask(taskForUpdate);
+        sendCreated(exchange, taskId);
     }
 
     private void handleDeleteTask(HttpExchange exchange, int taskId) throws IOException, NotFoundException {

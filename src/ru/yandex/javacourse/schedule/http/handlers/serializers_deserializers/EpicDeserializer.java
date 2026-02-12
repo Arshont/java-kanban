@@ -35,7 +35,8 @@ public class EpicDeserializer implements JsonDeserializer<Epic> {
         if (json.has("subtaskIds")) {
             epic.subtaskIds = jsonDeserializationContext.deserialize(
                     json.get("subtaskIds"),
-                    new TypeToken<ArrayList<Integer>>(){}.getType()
+                    new TypeToken<ArrayList<Integer>>() {
+                    }.getType()
             );
         }
 

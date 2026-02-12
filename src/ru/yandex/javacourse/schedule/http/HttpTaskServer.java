@@ -1,9 +1,7 @@
 package ru.yandex.javacourse.schedule.http;
 
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import ru.yandex.javacourse.schedule.http.handlers.*;
-import ru.yandex.javacourse.schedule.manager.InMemoryTaskManager;
 import ru.yandex.javacourse.schedule.manager.Managers;
 import ru.yandex.javacourse.schedule.manager.TaskManager;
 
@@ -16,15 +14,16 @@ public class HttpTaskServer {
     public final HttpServer server;
     private final TaskManager manager;
 
-    public HttpTaskServer() throws IOException {
+    public HttpTaskServer(TaskManager manager) throws IOException {
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
-        manager = Managers.getDefault();
+        this.manager = manager;
         server.createContext("/tasks", new TasksHttpHandler(manager));
         server.createContext("/subtasks", new SubtasksHttpHandler(manager));
         server.createContext("/epics", new EpicsHttpHandler(manager));
         server.createContext("/history", new HistoryHttpHandler(manager));
         server.createContext("/prioritized", new PrioritizedHttpHandler(manager));
     }
+
     public void startServer() {
         server.start();
     }
@@ -36,14 +35,14 @@ public class HttpTaskServer {
     public static void main(String[] args) {
         HttpTaskServer taskServer = null;
         try {
-            taskServer = new HttpTaskServer();
+            taskServer = new HttpTaskServer(Managers.getDefault());
             taskServer.startServer();
         } catch (IOException e) {
             System.err.println("С сервером что-то пошло не так...");
             throw new RuntimeException(e);
         } finally {
             assert taskServer != null;
-//            taskServer.stopServer();
+            taskServer.stopServer();
         }
     }
 }
