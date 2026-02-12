@@ -2,6 +2,9 @@ package ru.yandex.javacourse.schedule.manager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.javacourse.schedule.http.exceptions.EpicNotFoundException;
+import ru.yandex.javacourse.schedule.http.exceptions.HasInteractionsException;
+import ru.yandex.javacourse.schedule.http.exceptions.NotFoundException;
 import ru.yandex.javacourse.schedule.tasks.Epic;
 import ru.yandex.javacourse.schedule.tasks.Subtask;
 import ru.yandex.javacourse.schedule.tasks.Task;
@@ -88,7 +91,7 @@ public class TaskManagerTest {
         manager.addNewEpic(epic);
 
         Subtask subtaskWithoutEpic = new Subtask("Test 0", "Testing subtask 0", TaskStatus.NEW, basicTestDuration, 0);
-        assertNull(manager.addNewSubtask(subtaskWithoutEpic), "Добавление задчи должно завершиться неудачно");
+        assertEquals(0, manager.addNewSubtask(subtaskWithoutEpic), "Добавление задчи должно завершиться неудачно");
         assertEquals(0, manager.getSubtasks().size(), "Ни одна подзадача не должна быть добавлена");
         assertEquals(0, manager.getPrioritizedTasks().size(), "Не должно быть добавлено ни одной задачи с приоритетом");
 
@@ -129,12 +132,12 @@ public class TaskManagerTest {
         manager.addNewTask(task);
 
         Task newTaskWithoutId = new Task("Test 2", "Testing task 2", TaskStatus.NEW, basicTestDuration);
-        assertDoesNotThrow(() -> manager.updateTask(newTaskWithoutId), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.updateTask(newTaskWithoutId), "Метод должен выбросить NotFoundException");
         assertSame(task, manager.getTask(task.getId()).get(), "Задача не должна измениться");
         assertEquals(1, manager.getTasks().size(), "Количество задач не должно измениться");
 
         Task newTaskWithIncorrectId = new Task(42, "Test 3", "Testing task 3", TaskStatus.NEW, basicTestDuration);
-        assertDoesNotThrow(() -> manager.updateTask(newTaskWithIncorrectId), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.updateTask(newTaskWithIncorrectId), "Метод должен выбросить NotFoundException");
         assertSame(task, manager.getTask(task.getId()).get(), "Задача не должна измениться");
         assertEquals(1, manager.getTasks().size(), "Количество задач не должно измениться");
 
@@ -151,12 +154,12 @@ public class TaskManagerTest {
         manager.addNewEpic(epic);
 
         Epic newEpicWithoutId = new Epic("Test 2", "Testing epic 2");
-        assertDoesNotThrow(() -> manager.updateEpic(newEpicWithoutId), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.updateEpic(newEpicWithoutId), "Метод должен выбросить NotFoundException");
         assertSame(epic, manager.getEpic(epic.getId()).get(), "Эпик не должен измениться");
         assertEquals(1, manager.getEpics().size(), "Количество эпиков не должно измениться");
 
         Epic newEpicWithIncorrectId = new Epic(42, "Test 3", "Testing epic 3");
-        assertDoesNotThrow(() -> manager.updateEpic(newEpicWithIncorrectId), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.updateEpic(newEpicWithIncorrectId), "Метод должен выбросить NotFoundException");
         assertSame(epic, manager.getEpic(epic.getId()).get(), "Эпик не должен измениться");
         assertEquals(1, manager.getEpics().size(), "Количество эпиков не должно измениться");
 
@@ -176,17 +179,17 @@ public class TaskManagerTest {
         manager.addNewSubtask(subtask);
 
         Subtask newSubtaskWithoutId = new Subtask("Test 3", "Testing subtask 3", TaskStatus.NEW, basicTestDuration, epic.getId());
-        assertDoesNotThrow(() -> manager.updateSubtask(newSubtaskWithoutId), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.updateSubtask(newSubtaskWithoutId), "Метод должен выбросить NotFoundException");
         assertSame(subtask, manager.getSubtask(subtask.getId()).get(), "Подзадача не должна измениться");
         assertEquals(1, manager.getSubtasks().size(), "Количество подзадач не должно измениться");
 
         Subtask newSubtaskWithIncorrectId = new Subtask(42, "Test 4", "Testing subtask 4", TaskStatus.NEW, basicTestDuration, epic.getId());
-        assertDoesNotThrow(() -> manager.updateSubtask(newSubtaskWithIncorrectId), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.updateSubtask(newSubtaskWithIncorrectId), "Метод должен выбросить NotFoundException");
         assertSame(subtask, manager.getSubtask(subtask.getId()).get(), "Подзадача не должна измениться");
         assertEquals(1, manager.getSubtasks().size(), "Количество подзадач не должно измениться");
 
-        Subtask newSubtaskWithIncorrectEpicId = new Subtask(42, "Test 5", "Testing subtask 5", TaskStatus.NEW, basicTestDuration, 52);
-        assertDoesNotThrow(() -> manager.updateSubtask(newSubtaskWithIncorrectEpicId), "Метод должен выполниться корректно");
+        Subtask newSubtaskWithIncorrectEpicId = new Subtask(subtask.getId(), "Test 5", "Testing subtask 5", TaskStatus.NEW, basicTestDuration, 52);
+        assertThrows(EpicNotFoundException.class, () -> manager.updateSubtask(newSubtaskWithIncorrectEpicId), "Метод должен выбросить EpicNotFoundException");
         assertSame(subtask, manager.getSubtask(subtask.getId()).get(), "Подзадача не должна измениться");
         assertEquals(1, manager.getSubtasks().size(), "Количество подзадач не должно измениться");
 
@@ -200,14 +203,14 @@ public class TaskManagerTest {
     @Test
     public void testDeleteTaskWithoutTime() {
         assertEquals(0, manager.getTasks().size(), "Список задач должен быть пуст");
-        assertDoesNotThrow(() -> manager.deleteTask(42), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.deleteTask(42), "Метод должен выбросить NotFoundException");
         assertEquals(0, manager.getTasks().size(), "Список задач должен быть пуст");
 
         Task task = new Task("Test 1", "Testing task 1", TaskStatus.NEW, basicTestDuration);
         manager.addNewTask(task);
 
         assertEquals(1, manager.getTasks().size(), "Одна задача должна быть добавлена");
-        assertDoesNotThrow(() -> manager.deleteTask(42), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.deleteTask(42), "Метод должен выполниться корректно");
         assertEquals(1, manager.getTasks().size(), "Количество задач не должно измениться");
         assertSame(task, manager.getTask(1).get(), "Задача должна остаться той же");
 
@@ -219,14 +222,14 @@ public class TaskManagerTest {
     @Test
     public void testDeleteEpic() {
         assertEquals(0, manager.getEpics().size(), "Список эпиков должен быть пуст");
-        assertDoesNotThrow(() -> manager.deleteEpic(42), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.deleteEpic(42), "Метод должен выбросить NotFoundException");
         assertEquals(0, manager.getEpics().size(), "Список эпиков должен быть пуст");
 
         Epic epic1 = new Epic("Test 1", "Testing epic 1");
         manager.addNewEpic(epic1);
 
         assertEquals(1, manager.getEpics().size(), "В списке эпиков должен быть один эпик");
-        assertDoesNotThrow(() -> manager.deleteEpic(42), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.deleteEpic(42), "Метод должен выбросить NotFoundException");
         assertEquals(1, manager.getEpics().size(), "Количество эпиков не должно измениться");
         assertSame(epic1, manager.getEpic(1).get(), "Эпик должен остаться тем же");
 
@@ -261,7 +264,7 @@ public class TaskManagerTest {
         manager.addNewEpic(epic);
 
         assertEquals(0, manager.getSubtasks().size(), "Список подзадач должен быть пуст");
-        assertDoesNotThrow(() -> manager.deleteSubtask(42), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.deleteSubtask(42), "Метод должен выбросить NotFoundException");
         assertEquals(0, manager.getSubtasks().size(), "Список подзадач должен быть пуст");
 
         Subtask subtask = new Subtask("Test 2", "Testing subtask 1", TaskStatus.NEW, basicTestDuration, 1);
@@ -272,7 +275,7 @@ public class TaskManagerTest {
 
 
         assertEquals(1, manager.getSubtasks().size(), "Одна задача должна быть добавлена");
-        assertDoesNotThrow(() -> manager.deleteSubtask(42), "Метод должен выполниться корректно");
+        assertThrows(NotFoundException.class, () -> manager.deleteSubtask(42), "Метод должен выбросить NotFoundException");
         assertEquals(1, manager.getSubtasks().size(), "Количество подзадач не должно измениться");
         assertSame(subtask, manager.getSubtask(2).get(), "Задача должна остаться той же");
 
@@ -376,15 +379,22 @@ public class TaskManagerTest {
         assertEquals(1, manager.getTasks().size(), "Должна быть добавлена одна задача");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
 
+        Task taskWithSameTimeAndId = new Task(1, "Test SameTimeAndId", "Testing task 1", TaskStatus.NEW, basicTestDuration,
+                LocalDateTime.of(2025, 12, 20, 8, 0));
+        assertDoesNotThrow(() -> manager.updateTask(taskWithSameTimeAndId), "Метод не должен выбрасывать исключения");
+        assertEquals(1, manager.getTasks().size(), "Должна быть добавлена одна задача");
+        assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
+         assertSame(taskWithSameTimeAndId, manager.getTask(1).get(), "Задача должна быть замена новой");
+
         Task task1 = new Task(1, "Test 2", "Testing task 2", TaskStatus.NEW, basicTestDuration);
-        manager.updateTask(task1);
+        assertDoesNotThrow(() -> manager.updateTask(task1), "Метод не должен выбрасывать исключения");
         assertEquals(1, manager.getTasks().size(), "Не должно быть добавлено новых задач");
         assertEquals(0, manager.getPrioritizedTasks().size(), "Задача с приоритетом должна быть удалена");
         assertSame(task1, manager.getTask(1).get(), "Задача должна быть замена новой");
 
         Task task2 = new Task(1, "Test 3", "Testing task 3", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 0));
-        manager.updateTask(task2);
+        assertDoesNotThrow(() -> manager.updateTask(task2), "Метод не должен выбрасывать исключения");
         assertEquals(1, manager.getTasks().size(), "Не должно быть добавлено новых задач");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
         assertSame(task2, manager.getTask(1).get(), "Задача должна быть замена новой");
@@ -397,21 +407,23 @@ public class TaskManagerTest {
 
         Task taskWithTimeCrossings1 = new Task(2, "Test 4", "Testing task 5", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 10));
-        manager.updateTask(taskWithTimeCrossings1);
+        assertThrows(HasInteractionsException.class, () -> manager.updateTask(taskWithTimeCrossings1),
+                "Метод должен выбросить HasInteractionsException");
         assertEquals(2, manager.getTasks().size(), "Не должно быть добавлено новых задач");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Не должно быть добавлено новых задач с приоритетом");
         assertSame(taskForUpdate, manager.getTask(2).get(), "Задача не должна быть замена новой");
 
         Task taskWithTimeCrossings2 = new Task(2, "Test 5", "Testing task 6", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 15));
-        manager.updateTask(taskWithTimeCrossings2);
+        assertThrows(HasInteractionsException.class, () -> manager.updateTask(taskWithTimeCrossings2),
+                "Метод должен выбросить HasInteractionsException");
         assertEquals(2, manager.getTasks().size(), "Не должно быть добавлено новых задач");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Не должно быть добавлено новых задач с приоритетом");
         assertSame(taskForUpdate, manager.getTask(2).get(), "Задача не должна быть замена новой");
 
         Task taskWithoutTimeCrossings = new Task(2, "Test 6", "Testing task 7", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 20));
-        manager.updateTask(taskWithoutTimeCrossings);
+        assertDoesNotThrow(() -> manager.updateTask(taskWithoutTimeCrossings), "Метод не должен выбрасывать исключения");
         assertEquals(2, manager.getTasks().size(), "Не должно быть добавлено новых задач");
         assertEquals(2, manager.getPrioritizedTasks().size(), "Должна быть добавлена вторая задача с приоритетом");
         assertSame(taskWithoutTimeCrossings, manager.getTask(2).get(), "Задача должна быть замена новой");
@@ -429,14 +441,14 @@ public class TaskManagerTest {
         assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна подзадача с приоритетом");
 
         Subtask subtask1 = new Subtask(2, "Test 2", "Testing subtask 2", TaskStatus.NEW, basicTestDuration, 1);
-        manager.updateSubtask(subtask1);
+        assertDoesNotThrow(() -> manager.updateSubtask(subtask1), "Метод не должен выбрасывать исключения");
         assertEquals(1, manager.getSubtasks().size(), "Не должно быть добавлено новых подзадач");
         assertEquals(0, manager.getPrioritizedTasks().size(), "Подзадача с приоритетом должна быть удалена");
         assertSame(subtask1, manager.getSubtask(2).get(), "Подзадача должна быть замена новой");
 
         Subtask subtask2 = new Subtask(2, "Test 3", "Testing subtask 3", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 0), 1);
-        manager.updateSubtask(subtask2);
+        assertDoesNotThrow(() -> manager.updateSubtask(subtask2), "Метод не должен выбрасывать исключения");
         assertEquals(1, manager.getSubtasks().size(), "Не должно быть добавлено новых подзадач");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна подзадача с приоритетом");
         assertSame(subtask2, manager.getSubtask(2).get(), "Подзадача должна быть замена новой");
@@ -449,21 +461,23 @@ public class TaskManagerTest {
 
         Subtask subtaskWithTimeCrossings1 = new Subtask(3, "Test 4", "Testing subtask 5", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 10), 1);
-        manager.updateSubtask(subtaskWithTimeCrossings1);
+        assertThrows(HasInteractionsException.class, () -> manager.updateSubtask(subtaskWithTimeCrossings1),
+                "Метод должен выбросить HasInteractionsException");
         assertEquals(2, manager.getSubtasks().size(), "Не должно быть добавлено новых подзадач");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Не должно быть добавлено новых подзадач с приоритетом");
         assertSame(subtaskForUpdate, manager.getSubtask(3).get(), "Подзадача не должна быть замена новой");
 
         Subtask subtaskWithTimeCrossings2 = new Subtask(3, "Test 5", "Testing subtask 6", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 15), 1);
-        manager.updateSubtask(subtaskWithTimeCrossings2);
+        assertThrows(HasInteractionsException.class, () -> manager.updateSubtask(subtaskWithTimeCrossings2),
+                "Метод должен выбросить HasInteractionsException");
         assertEquals(2, manager.getSubtasks().size(), "Не должно быть добавлено новых подзадач");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Не должно быть добавлено новых подзадач с приоритетом");
         assertSame(subtaskForUpdate, manager.getSubtask(3).get(), "Подзадача не должна быть замена новой");
 
         Subtask subtaskWithoutTimeCrossings = new Subtask(3, "Test 6", "Testing subtask 7", TaskStatus.NEW, basicTestDuration,
                 LocalDateTime.of(2025, 12, 20, 8, 20), 1);
-        manager.updateSubtask(subtaskWithoutTimeCrossings);
+        assertDoesNotThrow(() -> manager.updateSubtask(subtaskWithoutTimeCrossings), "Метод не должен выбрасывать исключения");
         assertEquals(2, manager.getSubtasks().size(), "Не должно быть добавлено новых подзадач");
         assertEquals(2, manager.getPrioritizedTasks().size(), "Должна быть добавлена вторая подзадача с приоритетом");
         assertSame(subtaskWithoutTimeCrossings, manager.getSubtask(3).get(), "Подзадача должна быть замена новой");
@@ -482,17 +496,17 @@ public class TaskManagerTest {
         assertEquals(2, manager.getTasks().size(), "Должно быть добавлено две задачи");
         assertEquals(1, manager.getPrioritizedTasks().size(), "Должна быть добавлена одна задача с приоритетом");
 
-        manager.deleteTask(1);
+        assertDoesNotThrow(() -> manager.deleteTask(1), "Удаление должно выполниться корректно");
         assertEquals(1, manager.getTasks().size(), "Должна быть добавлена одна задача");
         assertEquals(0, manager.getPrioritizedTasks().size(), "Не должно быть задач с приоритетом");
 
-        manager.deleteTask(2);
+        assertDoesNotThrow(() -> manager.deleteTask(2), "Удаление должно выполниться корректно");
         assertEquals(0, manager.getTasks().size(), "Не должно остаться задач");
         assertEquals(0, manager.getPrioritizedTasks().size(), "Не должно быть задач с приоритетом");
     }
 
     @Test
-    public void testDeleteSubtaskWithTime() {
+    public void testDeleteSubtaskWithTime() throws NotFoundException {
         Epic epic = new Epic("Test 1", "Testing epic 1");
         manager.addNewEpic(epic);
 
@@ -510,13 +524,13 @@ public class TaskManagerTest {
         assertEquals(2, manager.getEpicSubtasks(1).size(), "Эпик должен иметь две подзадачи");
 
 
-        manager.deleteSubtask(2);
+        assertDoesNotThrow(() -> manager.deleteSubtask(2), "Метод должен выполниться корректно");
         assertEquals(1, manager.getSubtasks().size(), "Должна быть добавлена одна подзадача");
         assertEquals(0, manager.getPrioritizedTasks().size(), "Не должно быть подзадач с приоритетом");
         assertEquals(1, manager.getEpicSubtasks(1).size(), "Эпик должен иметь одну подзадачу");
 
 
-        manager.deleteSubtask(3);
+        assertDoesNotThrow(() -> manager.deleteSubtask(3), "Метод должен выполниться корректно");
         assertEquals(0, manager.getSubtasks().size(), "Не должно остаться подзадач");
         assertEquals(0, manager.getPrioritizedTasks().size(), "Не должно быть подзадач с приоритетом");
         assertEquals(0, manager.getEpicSubtasks(1).size(), "Эпик не должен иметь подзадач");
@@ -538,20 +552,20 @@ public class TaskManagerTest {
         assertEquals(TaskStatus.NEW, epic.getStatus(), "У эпика с двумя подзадачами со статусом NEW должен быть статус NEW");
 
         subtask1.setStatus(TaskStatus.IN_PROGRESS);
-        manager.updateSubtask(subtask1);
+        assertDoesNotThrow(() -> manager.updateSubtask(subtask1), "Метод не должен выбрасывать исключения");
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus(), "У эпика с хотя бы одной подзадачей со статусом " +
                 "IN_PROGRESS должен быть статус IN_PROGRESS");
         subtask0.setStatus(TaskStatus.IN_PROGRESS);
-        manager.updateSubtask(subtask0);
+        assertDoesNotThrow(() -> manager.updateSubtask(subtask0), "Метод не должен выбрасывать исключения");
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus(), "У эпика с хотя бы одной подзадачей со статусом " +
                 "IN_PROGRESS должен быть статус IN_PROGRESS");
         subtask1.setStatus(TaskStatus.DONE);
-        manager.updateSubtask(subtask1);
+        assertDoesNotThrow(() -> manager.updateSubtask(subtask1), "Метод не должен выбрасывать исключения");
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus(), "У эпика с хотя бы одной подзадачей со статусом " +
                 "IN_PROGRESS должен быть статус IN_PROGRESS");
 
         subtask0.setStatus(TaskStatus.NEW);
-        manager.updateSubtask(subtask0);
+        assertDoesNotThrow(() -> manager.updateSubtask(subtask0), "Метод не должен выбрасывать исключения");
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus(), "У эпика, не все статусы подзадач которого равны" +
                 "между собой, и среди статусов подзадач нет статуса IN_PROGRESS, должен быть статус IN_PROGRESS");
 
@@ -561,7 +575,7 @@ public class TaskManagerTest {
                 "между собой, и среди статусов подзадач нет статуса IN_PROGRESS, должен быть статус IN_PROGRESS");
 
         subtask0.setStatus(TaskStatus.DONE);
-        manager.updateSubtask(subtask0);
+        assertDoesNotThrow(() -> manager.updateSubtask(subtask0), "Метод не должен выбрасывать исключения");
         assertEquals(TaskStatus.DONE, epic.getStatus(), "У эпика, у которого все подзадачи имеют статус " +
                 "DONE, должен быть статус DONE");
     }
