@@ -1,5 +1,9 @@
 package ru.yandex.javacourse.schedule.manager;
 
+import ru.yandex.javacourse.schedule.http.exceptions.EpicNotFoundException;
+import ru.yandex.javacourse.schedule.http.exceptions.HasInteractionsException;
+import ru.yandex.javacourse.schedule.http.exceptions.NotFoundException;
+import ru.yandex.javacourse.schedule.http.exceptions.SubtasksNotFoundException;
 import ru.yandex.javacourse.schedule.tasks.Epic;
 import ru.yandex.javacourse.schedule.tasks.Subtask;
 import ru.yandex.javacourse.schedule.tasks.Task;
@@ -50,7 +54,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Integer addNewSubtask(Subtask subtask) {
+    public int addNewSubtask(Subtask subtask) {
         if (subtask.getId() != 0) {
             // Необходимо, чтобы при добавлении задачи из файла не возникало коллизии id в дальнейшем
             generatorId = subtask.getId() - 1;
@@ -63,37 +67,37 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws HasInteractionsException, NotFoundException {
         super.updateTask(task);
         save();
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) throws HasInteractionsException, NotFoundException, SubtasksNotFoundException {
         super.updateEpic(epic);
         save();
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) {
+    public void updateSubtask(Subtask subtask) throws HasInteractionsException, EpicNotFoundException, NotFoundException {
         super.updateSubtask(subtask);
         save();
     }
 
     @Override
-    public void deleteTask(int id) {
+    public void deleteTask(int id) throws NotFoundException {
         super.deleteTask(id);
         save();
     }
 
     @Override
-    public void deleteEpic(int id) {
+    public void deleteEpic(int id) throws NotFoundException {
         super.deleteEpic(id);
         save();
     }
 
     @Override
-    public void deleteSubtask(int id) {
+    public void deleteSubtask(int id) throws NotFoundException {
         super.deleteSubtask(id);
         save();
     }

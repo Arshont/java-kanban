@@ -1,5 +1,9 @@
 package ru.yandex.javacourse.schedule.manager;
 
+import ru.yandex.javacourse.schedule.http.exceptions.EpicNotFoundException;
+import ru.yandex.javacourse.schedule.http.exceptions.HasInteractionsException;
+import ru.yandex.javacourse.schedule.http.exceptions.NotFoundException;
+import ru.yandex.javacourse.schedule.http.exceptions.SubtasksNotFoundException;
 import ru.yandex.javacourse.schedule.tasks.Epic;
 import ru.yandex.javacourse.schedule.tasks.Subtask;
 import ru.yandex.javacourse.schedule.tasks.Task;
@@ -19,7 +23,7 @@ public interface TaskManager {
 
     List<Epic> getEpics();
 
-    List<Subtask> getEpicSubtasks(int epicId);
+    List<Subtask> getEpicSubtasks(int epicId) throws NotFoundException;
 
     Optional<Task> getTask(int id);
 
@@ -31,19 +35,19 @@ public interface TaskManager {
 
     int addNewEpic(Epic epic);
 
-    Integer addNewSubtask(Subtask subtask);
+    int addNewSubtask(Subtask subtask);
 
-    void updateTask(Task task);
+    void updateTask(Task task) throws NotFoundException, HasInteractionsException;
 
-    void updateEpic(Epic epic);
+    void updateEpic(Epic epic) throws NotFoundException, HasInteractionsException, SubtasksNotFoundException;
 
-    void updateSubtask(Subtask subtask);
+    void updateSubtask(Subtask subtask) throws NotFoundException, HasInteractionsException, EpicNotFoundException;
 
-    void deleteTask(int id);
+    void deleteTask(int id) throws NotFoundException;
 
-    void deleteEpic(int id);
+    void deleteEpic(int id) throws NotFoundException;
 
-    void deleteSubtask(int id);
+    void deleteSubtask(int id) throws NotFoundException;
 
     void deleteTasks();
 
@@ -55,9 +59,4 @@ public interface TaskManager {
 
     List<Task> getPrioritizedTasks();
 
-//    boolean isTaskAlreadyExists(Task task);
-//
-//    boolean isTaskAlreadyExists(Task task);
-//
-//    boolean isTaskAlreadyExists(Task task);
 }
